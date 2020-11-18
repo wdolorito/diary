@@ -8,6 +8,7 @@ import Main from './components/views/Main'
 import About from './components/views/About'
 import Latest from './components/views/Latest'
 import Posts from './components/views/Posts'
+import PostEditor from './components/Fragments/PostEditor'
 
 
 class App extends Component {
@@ -31,6 +32,10 @@ class App extends Component {
             <Route
               exact path='/posts'
               render={ (props) => <Posts /> }
+            />
+            <Route
+              exact path='/editor'
+              render={ (props) => <PostEditor /> }
             />
             <Footer />
         </div>

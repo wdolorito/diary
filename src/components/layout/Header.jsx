@@ -7,7 +7,7 @@ class Header extends Component {
     return(
       <nav>
         <div className='nav-wrapper'>
-          <Link to='/' className='brand-logo' title='Home'><img src={ logo }/></Link>
+          <Link to='/' className='brand-logo' title='Home'><img alt='logo' src={ logo }/></Link>
           <ul id="nav-mobile" className='right hide-on-med-and-down'>
             <li><Link to='latest' title='Latest'>Latest Posts</Link></li>
             <li><Link to='posts' title='All Posts'>All Posts</Link></li>
