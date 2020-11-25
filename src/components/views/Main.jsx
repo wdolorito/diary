@@ -6,7 +6,6 @@ class Main extends Component {
       <div>This is the main page.</div>
     )
   }
-
 }
 
 export default Main

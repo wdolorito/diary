@@ -6,7 +6,6 @@ class Latest extends Component {
       <div>This is the latest page.</div>
     )
   }
-
 }
 
 export default Latest

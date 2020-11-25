@@ -11,7 +11,6 @@ import Latest from './components/views/Latest'
 import Posts from './components/views/Posts'
 import PostEditor from './components/Fragments/PostEditor'
 
-
 class App extends Component {
   render() {
     return (

@@ -6,7 +6,6 @@ class Error extends Component {
       <div>This is the error page.</div>
     )
   }
-
 }
 
 export default Error

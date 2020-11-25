@@ -19,7 +19,6 @@ class PostEditor extends Component {
       </div>
     )
   }
-
 }
 
 export default PostEditor
