@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Restify server mongodb",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "William Dolorito",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.11",
+    "mongoose-timestamp": "^0.6.0",
+    "restify": "^8.4.0",
+    "restify-cors-middleware": "^1.1.1",
+    "restify-errors": "^8.0.1",
+    "restify-jwt-community": "^1.1.0",
+    "saslprep": "^1.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  }
+}
