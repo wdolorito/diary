@@ -21,7 +21,7 @@ class App extends Component {
     this.cancel = null
 
     this.state = {
-      baseLink: 'http://192.168.15.20:5000/',
+      baseLink: 'http://localhost:5000/',
       loginLink: 'login',
       jwt: '',
       refreshToken: '',

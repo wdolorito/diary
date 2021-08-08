@@ -39,8 +39,8 @@ const db = mongoose.connection
 db.on('error', err => console.log(err))
 
 db.once('open', () => {
+  require('./routes/authenticate')(server)
   require('./routes/endpoints')(server)
   require('./routes/posts')(server)
-  require('./routes/users')(server)
   console.log('Listening on port: %s', port)
 })

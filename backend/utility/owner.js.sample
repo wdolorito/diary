@@ -1,0 +1,24 @@
+//  Edit and copy this file to 'owner.js' and run `node utility/addowner.js`
+//  from parent directory
+
+let login,
+    owner
+
+login = `{
+  "email": "owner@of.this.blog.com",
+  "password": "imtheboss"
+}`
+
+owner = `{
+  "handle": "TheBoss",
+  "firstName": "The",
+  "middleName": "Head",
+  "lastName": "Honcho",
+  "location": "Upstairs office",
+  "bio": "I pwn everyone here",
+  "avatar": "/some/awesome/path/awesome.png"
+}`
+
+
+exports.newowner = { login,
+                     owner }

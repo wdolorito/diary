@@ -2,40 +2,10 @@ const bcrypt = require('bcryptjs')
 const errors = require('restify-errors')
 const jwt = require('jsonwebtoken')
 const Blacklist = require('../models/Blacklist')
-const Post = require('../models/Post')
-const User = require('../models/User')
-const UserData = require('../models/UserData')
+const TokenBlacklist = require('../models/TokenBlacklist')
+const Login = require('../models/Login')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
-
-const getUser = (id) => {
-  return new Promise(async (res, rej) => {
-    try {
-      const user = await User.findById(id).select('-__v')
-      const userdata = await UserData.findOne({ owner: user._id }).select('-_id -__v')
-      const payload = []
-      payload.push(user)
-      if(userdata != null) payload.push(userdata)
-      res(payload)
-    } catch(err) {
-      rej(err)
-    }
-  })
-}
-
-const getUsers = (arr) => {
-  return new Promise(async (res, rej) => {
-    try {
-      let payload = []
-      for(let count = 0; count < arr.length; count++) {
-        payload.push(await getUser(arr[count]._id))
-      }
-      res(payload)
-    } catch(err) {
-      rej(err)
-    }
-  })
-}
 
 const hashPass = (plain) => {
   return new Promise((res, rej) => {
@@ -53,7 +23,8 @@ const hashPass = (plain) => {
 
 module.exports = server => {
   Blacklist.init()
-  User.init()
+  TokenBlacklist.init()
+  Login.init()
 
   server.post('/login', async (req, res, next) => {
     if(!req.is('application/json')) {
@@ -64,11 +35,9 @@ module.exports = server => {
 
     try {
       const user = await bauth.bauth(email, password)
-      const token = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '30m' })
-      const { _id, iat, exp } = jwt.decode(token)
-      const luser = await getUser(_id)
-      const whoami = await bauth.whoAmI(_id)
-      res.send({ iat, exp, token, luser, whoami })
+      const token = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '10m' })
+      const refresh = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '86400m' })
+      res.send({ token, refresh })
       next()
     } catch(err) {
       return next(new errors.UnauthorizedError(err))
@@ -88,21 +57,42 @@ module.exports = server => {
     }
   })
 
-  server.get('/user/:id', async (req, res, next) => {
+  server.post('/refresh', async (req, res, next) => {
     const resToken = req.headers.authorization
     try {
-      if(await utils.isExpired(resToken)) {
-        return next(new errors.UnauthorizedError('Not authorized'))
+      if(await utils.tokenIsExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('refresh token invalid'))
       }
+    } catch(err) {
+      return next(new errors.InternalError(err))
+    }
+
+    let pToken
+    try {
+      pToken = resToken.split(' ')[1]
+      const newTokenBlacklist = new TokenBlacklist({ token: pToken })
+      await newTokenBlacklist.save()
+      next()
     } catch(err) {
       return next(new errors.InternalError('db error'))
     }
 
+    let decoded
     try {
-      res.send(await getUser(req.params.id))
+      decoded = jwt.verify(pToken, process.env.APP_SECRET)
+    } catch(err) {
+      return next(new errors.InvalidCredentialsError('refresh token invalid'))
+    }
+
+    try {
+      const email = decoded.email
+      const user = { 'email': email }
+      const token = jwt.sign(user, process.env.APP_SECRET, { expiresIn: '10m' })
+      const refresh = jwt.sign(user, process.env.APP_SECRET, { expiresIn: '86400m' })
+      res.send({ token, refresh })
       next()
     } catch(err) {
-      return next(new errors.ResourceNotFoundError('User does not exist'))
+      return next(new errors.UnauthorizedError(err))
     }
   })
 }

@@ -1,8 +1,6 @@
 const errors = require('restify-errors')
 const jwt = require('jsonwebtoken')
 const Post = require('../models/Post')
-const User = require('../models/User')
-const UserData = require('../models/UserData')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const timestamp = require('mongoose-timestamp')
-const expireTime = 1800 // Set to max time of jwt (def 30 minutes)
+const expireTime = 600 // (stored in seconds) Set to max time of jwt (10 minutes)
 
 const BlacklistSchema = new mongoose.Schema({
   token: {

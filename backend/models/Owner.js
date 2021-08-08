@@ -1,14 +1,7 @@
 const mongoose = require('mongoose')
 const timestamp = require('mongoose-timestamp')
 
-const UserDataSchema = new mongoose.Schema({
-  owner: {
-    type: String,
-    select: false,
-    required: true,
-    trim: true,
-    immutable: true
-  },
+const OwnerSchema = new mongoose.Schema({
   handle: {
     type: String,
     required: true,
@@ -30,16 +23,6 @@ const UserDataSchema = new mongoose.Schema({
     required: false,
     trim: true
   },
-  location: {
-    type: String,
-    required: false,
-    trim: false
-  },
-  bio: {
-    type: String,
-    required: false,
-    trim: true
-  },
   avatar: {
     type: String,
     required: false,
@@ -47,7 +30,7 @@ const UserDataSchema = new mongoose.Schema({
   }
 })
 
-UserDataSchema.plugin(timestamp)
+OwnerSchema.plugin(timestamp)
 
-const UserData = mongoose.model('UserData', UserDataSchema, 'UserData')
-module.exports = UserData
+const Owner = mongoose.model('Owner', OwnerSchema, 'Owner')
+module.exports = Owner
