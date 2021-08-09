@@ -1,5 +1,6 @@
 const errors = require('restify-errors')
 const jwt = require('jsonwebtoken')
+const Owner = require('../models/Owner')
 const Post = require('../models/Post')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
@@ -16,26 +17,6 @@ const getAuthor = (id) => {
       author.author = name
       author.handle = authordata[0].handle
       res(author)
-    } catch(err) {
-      rej(err)
-    }
-  })
-}
-
-const fixPost = (toEdit) => {
-  return new Promise(async (res, rej) => {
-    try {
-      const author = await getAuthor(toEdit.owner)
-
-      const post = {}
-      post.id = toEdit._id
-      post.author = author.author
-      post.handle = author.handle
-      post.title = toEdit.title
-      post.body = toEdit.body
-      post.updatedAt = toEdit.updatedAt
-      post.createdAt = toEdit.createdAt
-      res(post)
     } catch(err) {
       rej(err)
     }
@@ -91,8 +72,20 @@ module.exports = server => {
   })
 
   server.get('/posts', async (req, res, next) => {
+    const tosend = []
     try {
-      const tosend = []
+      const owner = await Owner.find().sort({ createdAt: -1 })
+                                      .select('-_id')
+                                      .select('-owner')
+                                      .select('-updatedAt')
+                                      .select('-createdAt')
+                                      .select('-__v')
+      tosend.push(owner[0])
+    } catch(err) {
+      return next(new errors.InvalidContentError(err))
+    }
+
+    try {
       const posts = await Post.find().select('-__v')
       for(count = 0; count < posts.length; count++) {
         const post = await fixPost(posts[count])
@@ -140,6 +133,7 @@ module.exports = server => {
     }
 
     const resToken = req.headers.authorization
+    const id = req.params.id
     try {
       if(await utils.isExpired(resToken)) {
         return next(new errors.InvalidCredentialsError('No authorization token was found'))
@@ -148,33 +142,20 @@ module.exports = server => {
       return next(new errors.InternalError('db error'))
     }
 
-    let canaction = false,
-        post = null
-
     try {
-      const user = await utils.getID(resToken)
-      post = await Post.findOne({ _id: req.params.id })
-      const towork = post._doc.owner
-      canaction = await bauth.canAction(user, towork, 'update', 'post')
+      await Post.findOneAndUpdate({ _id: id}, { $set: req.body })
+      res.send(200, 'updated post')
+      next()
     } catch(err) {
-      return next(new errors.InternalError('db error'))
+      return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
     }
 
-    if(canaction) {
-      try {
-        await Post.findOneAndUpdate({ _id: post._id}, { $set: req.body }).select('-__v')
-        res.send(200, 'updated post')
-        next()
-      } catch(err) {
-        return next(new errors.ResourceNotFoundError('Post not found'))
-      }
-    }
-
-    return next(new errors.ResourceNotFoundError('Post not found'))
+    return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
   })
 
   server.del('/post/:id', async (req, res, next) => { // 204 req
     const resToken = req.headers.authorization
+    const id = req.params.id
     try {
       if(await utils.isExpired(resToken)) {
         return next(new errors.InvalidCredentialsError('No authorization token was found'))
@@ -183,28 +164,14 @@ module.exports = server => {
       return next(new errors.InternalError('db error'))
     }
 
-    let canaction = false,
-        post = null
-
     try {
-      const user = await utils.getID(resToken)
-      post = await Post.findOne({ _id: req.params.id })
-      const towork = post._doc.owner
-      canaction = await bauth.canAction(user, towork, 'delete', 'post')
+      await Post.deleteOne({ _id: id })
+      res.send(204, 'deleted post')
+      next()
     } catch(err) {
-      return next(new errors.InternalError('db error testing'))
+      return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
     }
 
-    if(canaction) {
-      try {
-        await Post.deleteOne({ _id: req.params.id})
-        res.send(204, 'deleted post')
-        next()
-      } catch(err) {
-        return next(new errors.ResourceNotFoundError('Post not found'))
-      }
-    }
-
-    return next(new errors.ResourceNotFoundError('Post not found'))
+    return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
   })
 }
