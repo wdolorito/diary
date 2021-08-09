@@ -2,11 +2,16 @@ const mongoose = require('mongoose')
 const timestamp = require('mongoose-timestamp')
 
 const OwnerSchema = new mongoose.Schema({
+  owner: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
   handle: {
     type: String,
     required: true,
-    trim: true,
-    immutable: true
+    trim: true
   },
   firstName: {
     type: String,

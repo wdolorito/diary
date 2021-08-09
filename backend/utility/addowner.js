@@ -11,8 +11,6 @@ const saveOwner = (login, owner) => {
             firstName,
             middleName,
             lastName,
-            location,
-            bio,
             avatar } = owner
 
     const { email,
@@ -31,11 +29,13 @@ const saveOwner = (login, owner) => {
           console.log(await newlogin.save())
         } catch(err) {
           console.log(err)
+          process.exit()
         }
 
         let newOwner
         try {
           newOwner = new Owner({
+            owner: newlogin._id,
             handle,
             firstName,
             middleName,

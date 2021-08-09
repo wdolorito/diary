@@ -14,11 +14,11 @@ owner = `{
   "firstName": "The",
   "middleName": "Head",
   "lastName": "Honcho",
-  "location": "Upstairs office",
-  "bio": "I pwn everyone here",
   "avatar": "/some/awesome/path/awesome.png"
 }`
 
+login = JSON.parse(login)
+owner = JSON.parse(owner)
 
 exports.newowner = { login,
                      owner }
