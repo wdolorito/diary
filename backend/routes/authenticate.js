@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const errors = require('restify-errors')
 const jwt = require('jsonwebtoken')
 const Blacklist = require('../models/Blacklist')
-const TokenBlacklist = require('../models/TokenBlacklist')
+const TokenWhitelist = require('../models/TokenWhitelist')
 const Login = require('../models/Login')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
@@ -23,7 +23,7 @@ const hashPass = (plain) => {
 
 module.exports = server => {
   Blacklist.init()
-  TokenBlacklist.init()
+  TokenWhitelist.init()
   Login.init()
 
   server.post('/login', async (req, res, next) => {
@@ -33,66 +33,74 @@ module.exports = server => {
 
     const { email, password } = req.body
 
+    let user,
+        refresh
+
     try {
-      const user = await bauth.bauth(email, password)
-      const token = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '10m' })
-      const refresh = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '86400m' })
-      res.send({ token, refresh })
-      next()
+      user = await bauth.bauth(email, password)
     } catch(err) {
       return next(new errors.UnauthorizedError(err))
     }
+
+    const token = jwt.sign(user.toJSON(), process.env.APP_SECRET, { expiresIn: '10m' })
+
+    try {
+      refresh = utils.genToken()
+      const tokenwhitelist = new TokenWhitelist({ token: refresh })
+      await tokenwhitelist.save()
+    } catch(err) {
+      return next(new errors.InternalError('unable to generate refresh token'))
+    }
+
+    res.send({ token, refresh })
+    next()
   })
 
   server.post('/logout', async (req, res, next) => {
-    try {
-      const resToken = req.headers.authorization
-      const pToken = resToken.split(' ')[1]
-      const newBlacklist = new Blacklist({ token: pToken })
-      await newBlacklist.save()
-      res.send(200, 'logged out')
-      next()
-    } catch(err) {
-      return next(new errors.InternalError('db error'))
+    if(!req.is('application/json')) {
+      return next(new errors.InvalidContentError('Data not sent correctly'))
     }
+
+    const resToken = req.headers.authorization
+    const { token } = req.body
+
+    try {
+      await utils.blacklistJwt(resToken)
+    } catch(err) {
+      return next(new errors.InternalError('unable to add jwt'))
+    }
+
+    try {
+      await utils.removeToken(token)
+    } catch(err) {
+      return next(new errors.InternalError('unable to remove refresh token'))
+    }
+
+    res.send(200, 'logged out')
+    next()
   })
 
   server.post('/refresh', async (req, res, next) => {
     const resToken = req.headers.authorization
+    const { token } = req.body
     try {
-      if(await utils.tokenIsExpired(resToken)) {
+      const tokenExpired = await utils.tokenIsExpired(token)
+      if(tokenExpired) {
         return next(new errors.InvalidCredentialsError('refresh token invalid'))
       }
     } catch(err) {
       return next(new errors.InternalError(err))
     }
 
-    let pToken
     try {
-      pToken = resToken.split(' ')[1]
-      const newTokenBlacklist = new TokenBlacklist({ token: pToken })
-      await newTokenBlacklist.save()
+      const user = await utils.getUser(resToken)
+      const payload = {}
+      payload.email = user
+      const token = jwt.sign(payload, process.env.APP_SECRET, { expiresIn: '10m' })
+      res.send({ token })
       next()
     } catch(err) {
-      return next(new errors.InternalError('db error'))
-    }
-
-    let decoded
-    try {
-      decoded = jwt.verify(pToken, process.env.APP_SECRET)
-    } catch(err) {
-      return next(new errors.InvalidCredentialsError('refresh token invalid'))
-    }
-
-    try {
-      const email = decoded.email
-      const user = { 'email': email }
-      const token = jwt.sign(user, process.env.APP_SECRET, { expiresIn: '10m' })
-      const refresh = jwt.sign(user, process.env.APP_SECRET, { expiresIn: '86400m' })
-      res.send({ token, refresh })
-      next()
-    } catch(err) {
-      return next(new errors.UnauthorizedError(err))
+      return next(new errors.InternalError(err))
     }
   })
 }
