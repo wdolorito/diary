@@ -6,7 +6,7 @@ const TokenWhitelist =  require('../models/TokenWhitelist')
 exports.getUser = async () => {
   return new Promise(async (res, rej) => {
     try {
-      const id = await Login.find({}).sort({ "createdAt": -1 })
+      const id = await Login.find().sort({ "createdAt": -1 })
       res(id[0].email)
     } catch(err) {
       rej('db error')

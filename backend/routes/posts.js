@@ -8,8 +8,7 @@ const utils = require('../utility/jwtutils')
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
-      // const author = await Owner.findOne({ createdAt: -1 })
-      res(await Owner.find({}).sort({ "createdAt": -1 }))
+      res(await Owner.find().select('-_id').select('-owner').select('-__v').sort({ "createdAt": -1 }))
     } catch(err) {
       rej(err)
     }
@@ -21,64 +20,53 @@ module.exports = server => {
 
   // CRUD operations -> post get put del
   server.post('/post', async (req, res, next) => {
+    if(!req.is('application/json')) {
+      return next(new errors.InvalidContentError('Data not sent correctly'))
+    }
+
+    const { title, body } = req.body
+
+    let author
+
     try {
-      const author = await getAuthor()
-      console.log(author)
-      res.send(author)
+      author = await getAuthor()
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
+    }
+
+    console.log(author)
+
+    const post = new Post({
+      owner: author[0]._id,
+      title,
+      body
+    })
+
+    try {
+      await post.save()
+      res.send(201, 'saved post')
       next()
     } catch(err) {
       return next(new errors.InternalError('db error'))
     }
-    // const resToken = req.headers.authorization
-    // try {
-    //   if(await utils.isExpired(resToken)) {
-    //     return next(new errors.InvalidCredentialsError('No authorization token was found'))
-    //   }
-    // } catch(err) {
-    //   return next(new errors.InternalError('db error'))
-    // }
-    //
-    // if(!req.is('application/json')) {
-    //   return next(new errors.InvalidContentError('Data not sent correctly'))
-    // }
-    //
-    // const { title, body } = req.body
-    // const post = new Post({
-    //   owner: user,
-    //   title,
-    //   body
-    // })
-    //
-    // try {
-    //   const newPost = await post.save()
-    //   res.send(201, 'saved post')
-    //   next()
-    // } catch(err) {
-    //   return next(new errors.InternalError('db error'))
-    // }
-    //
-    // return next(new errors.InternalError('unable to post'))
+
+    return next(new errors.InternalError('unable to post'))
   })
 
   server.get('/posts', async (req, res, next) => {
     const tosend = []
     try {
-      const owner = await Owner.find().sort({ createdAt: -1 })
-                                      .select('-_id')
-                                      .select('-owner')
-                                      .select('-updatedAt')
-                                      .select('-createdAt')
-                                      .select('-__v')
-      tosend.push(owner[0])
+      const author = await getAuthor()
+      tosend.push(author[0])
     } catch(err) {
       return next(new errors.InvalidContentError(err))
     }
 
     try {
-      const posts = await Post.find().select('-__v')
-      for(count = 0; count < posts.length; count++) {
-        const post = await fixPost(posts[count])
-        tosend.push(post)
+      const posts = await Post.find().select('-__v').select('-owner')
+      const length = posts.length
+      for(count = 0; count < length; count++) {
+        tosend.push(posts[count])
       }
 
       res.send(tosend)
@@ -89,26 +77,16 @@ module.exports = server => {
   })
 
   server.get('/post/:id', async (req, res, next) => {
-    const resToken = req.headers.authorization
+    const tosend = []
     try {
-      if(await utils.isExpired(resToken)) {
-        return next(new errors.InvalidCredentialsError('No authorization token was found'))
-      }
+      const author = await getAuthor()
+      tosend.push(author[0])
     } catch(err) {
-      return next(new errors.InternalError('db error'))
+      return next(new errors.InvalidContentError(err))
     }
 
     try {
-      const post = await Post.findOne({ _id: req.params.id }).select('-__v')
-      const author = await getAuthor(post.owner)
-      const tosend = {}
-      tosend._id = post._id
-      tosend.author = author.author
-      tosend.handle = author.handle
-      tosend.title = post.title
-      tosend.body = post.body
-      tosend.updatedAt = post.updatedAt
-      tosend.createdAt = post.createdAt
+      tosend.push(await Post.findOne({ _id: req.params.id }).select('-__v').select('-owner'))
       res.send(tosend)
       next()
     } catch(err) {
