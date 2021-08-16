@@ -9,7 +9,7 @@ const server = restify.createServer()
 
 server.use(restify.plugins.bodyParser())
 
-const unprotected = [ '/login', '/posts', '/ends' ]
+const unprotected = [ '/login', '/posts', '/refresh', '/ends' ]
 server.use(rjwt({ secret: process.env.APP_SECRET }).unless({ path: unprotected }))
 
 const cors = corsMiddleware({

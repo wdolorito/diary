@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken')
+const Login = require('../models/Login')
 const Blacklist =  require('../models/Blacklist')
 const TokenWhitelist =  require('../models/TokenWhitelist')
 
-exports.getUser = async (bearer) => {
+exports.getUser = async () => {
   return new Promise(async (res, rej) => {
     try {
-      const token = bearer.split(' ')[1]
-      const id = await jwt.verify(token, process.env.APP_SECRET)
-      res(id.email)
+      const id = await Login.find({}).sort({ "createdAt": -1 })
+      res(id[0].email)
     } catch(err) {
       rej('db error')
     }
@@ -34,7 +34,7 @@ exports.blacklistJwt = async (bearer) => {
   return new Promise(async (res, rej) => {
     try {
       const token = bearer.split(' ')[1]
-      const resp = new Blacklist({ token: token })
+      const resp = new Blacklist({ token })
       await resp.save()
       res(resp)
     } catch(err) {

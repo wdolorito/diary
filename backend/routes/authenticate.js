@@ -81,11 +81,9 @@ module.exports = server => {
   })
 
   server.post('/refresh', async (req, res, next) => {
-    const resToken = req.headers.authorization
     const { token } = req.body
     try {
-      const tokenExpired = await utils.tokenIsExpired(token)
-      if(tokenExpired) {
+      if(await utils.tokenIsExpired(token)) {
         return next(new errors.InvalidCredentialsError('refresh token invalid'))
       }
     } catch(err) {
@@ -93,14 +91,31 @@ module.exports = server => {
     }
 
     try {
-      const user = await utils.getUser(resToken)
-      const payload = {}
-      payload.email = user
-      const token = jwt.sign(payload, process.env.APP_SECRET, { expiresIn: '10m' })
-      res.send({ token })
-      next()
+      await utils.removeToken(token)
+    } catch(err) {
+      return next(new errors.InvalidCredentialsError('refresh token invalid'))
+    }
+
+    let email,
+        refresh
+
+    try {
+      email = await utils.getUser()
     } catch(err) {
       return next(new errors.InternalError(err))
     }
+
+    const newjwt = jwt.sign({ email }, process.env.APP_SECRET, { expiresIn: '10m' })
+
+    try {
+      refresh = utils.genToken()
+      const tokenwhitelist = new TokenWhitelist({ token: refresh })
+      await tokenwhitelist.save()
+    } catch(err) {
+      return next(new errors.InternalError('unable to generate refresh token'))
+    }
+
+    res.send({ token: newjwt, refresh })
+    next()
   })
 }

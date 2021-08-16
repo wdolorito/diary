@@ -5,18 +5,11 @@ const Post = require('../models/Post')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
 
-const getAuthor = (id) => {
+const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
-      const authorid = await User.findOne({ _id: id }).select('-__v')
-      const authordata = await UserData.find({ owner: authorid._id }).select('-_id -__v')
-      const author = {}
-      const name = authordata[0].firstName + ' '
-                   + authordata[0].middleName + ' '
-                   + authordata[0].lastName
-      author.author = name
-      author.handle = authordata[0].handle
-      res(author)
+      // const author = await Owner.findOne({ createdAt: -1 })
+      res(await Owner.find({}).sort({ "createdAt": -1 }))
     } catch(err) {
       rej(err)
     }
@@ -28,47 +21,43 @@ module.exports = server => {
 
   // CRUD operations -> post get put del
   server.post('/post', async (req, res, next) => {
-    const resToken = req.headers.authorization
     try {
-      if(await utils.isExpired(resToken)) {
-        return next(new errors.InvalidCredentialsError('No authorization token was found'))
-      }
+      const author = await getAuthor()
+      console.log(author)
+      res.send(author)
+      next()
     } catch(err) {
       return next(new errors.InternalError('db error'))
     }
-
-    if(!req.is('application/json')) {
-      return next(new errors.InvalidContentError('Data not sent correctly'))
-    }
-
-    let user = '',
-        userType = ''
-
-    try {
-      user = await utils.getID(resToken)
-      userType = await bauth.whoAmI(user)
-    } catch(err) {
-      return next(new errors.InternalError('db error'))
-    }
-
-    if(userType === 'user') {
-      const { title, body } = req.body
-      const post = new Post({
-        owner: user,
-        title,
-        body
-      })
-
-      try {
-        const newPost = await post.save()
-        res.send(201, 'saved post')
-        next()
-      } catch(err) {
-        return next(new errors.InternalError('db error'))
-      }
-    }
-
-    return next(new errors.InternalError('unable to post'))
+    // const resToken = req.headers.authorization
+    // try {
+    //   if(await utils.isExpired(resToken)) {
+    //     return next(new errors.InvalidCredentialsError('No authorization token was found'))
+    //   }
+    // } catch(err) {
+    //   return next(new errors.InternalError('db error'))
+    // }
+    //
+    // if(!req.is('application/json')) {
+    //   return next(new errors.InvalidContentError('Data not sent correctly'))
+    // }
+    //
+    // const { title, body } = req.body
+    // const post = new Post({
+    //   owner: user,
+    //   title,
+    //   body
+    // })
+    //
+    // try {
+    //   const newPost = await post.save()
+    //   res.send(201, 'saved post')
+    //   next()
+    // } catch(err) {
+    //   return next(new errors.InternalError('db error'))
+    // }
+    //
+    // return next(new errors.InternalError('unable to post'))
   })
 
   server.get('/posts', async (req, res, next) => {
