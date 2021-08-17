@@ -15,11 +15,30 @@ const getAuthor = () => {
   })
 }
 
+const getAuthorForPost = () => {
+  return new Promise(async (res, rej) => {
+    try {
+      res(await Owner.find().sort({ "createdAt": -1 }))
+    } catch(err) {
+      rej(err)
+    }
+  })
+}
+
 module.exports = server => {
   Post.init()
 
   // CRUD operations -> post get put del
   server.post('/post', async (req, res, next) => {
+    const resToken = req.headers.authorization
+    try {
+      if(await utils.isExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('The token has expired'))
+      }
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
+    }
+
     if(!req.is('application/json')) {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
@@ -29,12 +48,10 @@ module.exports = server => {
     let author
 
     try {
-      author = await getAuthor()
+      author = await getAuthorForPost()
     } catch(err) {
       return next(new errors.InternalError('db error'))
     }
-
-    console.log(author)
 
     const post = new Post({
       owner: author[0]._id,
@@ -47,7 +64,7 @@ module.exports = server => {
       res.send(201, 'saved post')
       next()
     } catch(err) {
-      return next(new errors.InternalError('db error'))
+      return next(new errors.InternalError('unable to post'))
     }
 
     return next(new errors.InternalError('unable to post'))
@@ -85,18 +102,33 @@ module.exports = server => {
       return next(new errors.InvalidContentError(err))
     }
 
-    try {
-      tosend.push(await Post.findOne({ _id: req.params.id }).select('-__v').select('-owner'))
-      res.send(tosend)
-      next()
-    } catch(err) {
-      return next(new errors.ResourceNotFoundError('Post not found'))
+    const id = req.params.id || null
+
+    if(id !== null) {
+      try {
+        tosend.push(await Post.findOne({ _id: req.params.id }).select('-__v').select('-owner'))
+        res.send(tosend)
+        next()
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError('Post ' + id + ' not found'))
+      }
     }
+
+    return next(new errors.ResourceNotFoundError('Need Post ID'))
   })
 
   server.put('/post/:id', async (req, res, next) => { // 200 req
     if(!req.is('application/json')) {
       return next(new errors.InvalidContentError('Data not sent correctly'))
+    }
+
+    const resToken = req.headers.authorization
+    try {
+      if(await utils.isExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('The token has expired'))
+      }
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
     }
 
     const id = req.params.id || null
@@ -111,28 +143,30 @@ module.exports = server => {
       }
     }
 
-    return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
+    return next(new errors.ResourceNotFoundError('Need Post ID to update'))
   })
 
   server.del('/post/:id', async (req, res, next) => { // 204 req
     const resToken = req.headers.authorization
-    const id = req.params.id
     try {
       if(await utils.isExpired(resToken)) {
-        return next(new errors.InvalidCredentialsError('No authorization token was found'))
+        return next(new errors.InvalidCredentialsError('The token has expired'))
       }
     } catch(err) {
       return next(new errors.InternalError('db error'))
     }
 
-    try {
-      await Post.deleteOne({ _id: id })
-      res.send(204, 'deleted post')
-      next()
-    } catch(err) {
-      return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
+    const id = req.params.id || null
+    if(id !== null) {
+      try {
+        await Post.deleteOne({ _id: id })
+        res.send(204, 'deleted post')
+        next()
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
+      }
     }
 
-    return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
+    return next(new errors.ResourceNotFoundError('Need Post ID to delete'))
   })
 }

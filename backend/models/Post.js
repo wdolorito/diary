@@ -5,7 +5,6 @@ const PostSchema = new mongoose.Schema({
   owner: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   },
   title: {
@@ -17,7 +16,6 @@ const PostSchema = new mongoose.Schema({
   body: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   }
 })
