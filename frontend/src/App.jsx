@@ -23,9 +23,10 @@ class App extends Component {
     this.state = {
       baseLink: 'http://localhost:5000/',
       loginLink: 'login',
+      logoutLink: 'logout',
+      refreshLink: 'refresh',
+      postsLink: 'posts',
       jwt: '',
-      refreshToken: '',
-      didRefresh: false,
       logged: false
     }
 
@@ -33,7 +34,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.setState({ loginLink: this.state.baseLink + this.state.loginLink })
+    this.setLinks()
   }
 
   componentWillUnmount() {
@@ -42,9 +43,13 @@ class App extends Component {
   }
 
   componentDidUpdate() {
-    if(this.state.jwt === '' && !this.state.didRefresh) {
-      this.setState({ didRefresh: true }, this.doRefresh())
-    }
+  }
+
+  setLinks = () => {
+    this.setState({ loginLink: this.state.baseLink + this.state.loginLink })
+    this.setState({ logoutLink: this.state.baseLink + this.state.logoutLink })
+    this.setState({ refreshLink: this.state.baseLink + this.state.refreshLink })
+    this.setState({ postsLink: this.state.baseLink + this.state.postsLink })
   }
 
   setJwt = (newjwt) => {
@@ -89,7 +94,6 @@ class App extends Component {
           this.setJwt(res.data.token)
           this.setLogged()
           this.storeToken(res.data.refresh)
-          this.setState({ didRefresh: true })
         }
       },
       (err) => {
@@ -100,30 +104,44 @@ class App extends Component {
   }
 
   doRefresh = () => {
-    // const storedToken = this.getToken()
-    // if(storedToken) {
-    //   axios({
-    //     method: 'post',
-    //     url: this.state.refreshLink,
-    //     cancelToken: new CancelToken(c => this.cancel = c),
-    //     headers: {
-    //       'Authorization': 'Bearer ' + storedToken
-    //     }
-    //   })
-    //   .then(
-    //     (res) => {
-    //       if(res.status === 200) {
-    //         this.setJwt(res.data.token)
-    //         this.setLogged()
-    //         this.storeToken(res.data.refresh)
-    //       }
-    //     },
-    //     (err) => {
-    //       this.resetJwt()
-    //       this.resetToken()
-    //     }
-    //   )
-    // }
+    const token = this.getToken()
+    if(token) {
+      axios({
+        method: 'post',
+        url: this.state.refreshLink,
+        cancelToken: new CancelToken(c => this.cancel = c),
+        data: { token }
+      })
+      .then(
+        (res) => {
+          if(res.status === 200) {
+            this.setJwt(res.data.token)
+            this.setLogged()
+            this.storeToken(res.data.refresh)
+          }
+        },
+        (err) => {
+          this.resetJwt()
+          this.resetToken()
+        }
+      )
+    }
+  }
+
+  getPosts = () => {
+    axios({
+      method: 'get',
+      url: this.state.postsLink,
+      cancelToken: new CancelToken(c => this.cancel = c)
+    })
+    .then(
+      (res) => {
+        console.log(res.data)
+      },
+      (err) => {
+        console.log(this.state.postsLink, err)
+      }
+    )
   }
 
   render() {
@@ -134,7 +152,13 @@ class App extends Component {
           <Switch>
             <Route
               exact path='/'
-              component={ Main }
+              render={ (props) =>
+                <Main
+                  { ...props }
+                  key='mainDisplay'
+                  logged={ this.state.logged }
+                  getPosts={ this.getPosts }
+                /> }
             />
             <Route
               path='/about'
@@ -152,7 +176,8 @@ class App extends Component {
               path='/editor'
               component={ PostEditor }
             />
-            <Route exact path='/quixotic'
+            <Route
+              exact path='/quixotic'
               render={ (props) =>
                 <Login
                   { ...props }

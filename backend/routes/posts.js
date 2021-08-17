@@ -8,7 +8,7 @@ const utils = require('../utility/jwtutils')
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
-      res(await Owner.find().select('-_id').select('-owner').select('-__v').sort({ "createdAt": -1 }))
+      res(await Owner.find().select('-_id').select('-owner').select('-updatedAt').select('-__v').sort({ "createdAt": -1 }))
     } catch(err) {
       rej(err)
     }
