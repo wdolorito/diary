@@ -99,22 +99,16 @@ module.exports = server => {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
 
-    const resToken = req.headers.authorization
-    const id = req.params.id
-    try {
-      if(await utils.isExpired(resToken)) {
-        return next(new errors.InvalidCredentialsError('No authorization token was found'))
-      }
-    } catch(err) {
-      return next(new errors.InternalError('db error'))
-    }
+    const id = req.params.id || null
 
-    try {
-      await Post.findOneAndUpdate({ _id: id}, { $set: req.body })
-      res.send(200, 'updated post')
-      next()
-    } catch(err) {
-      return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
+    if(id !== null) {
+      try {
+        await Post.findOneAndUpdate({ _id: id}, { $set: req.body })
+        res.send(200, 'updated post')
+        next()
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
+      }
     }
 
     return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
