@@ -13,6 +13,11 @@ const PostSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  summary: {
+    type: String,
+    required: true,
+    trim: true
+  },
   body: {
     type: String,
     required: true,

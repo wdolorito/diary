@@ -44,6 +44,13 @@ module.exports = server => {
     }
 
     const { title, body } = req.body
+    let { summary } = req.body
+
+    if(summary === undefined) {
+      summary = body.substring(0, 140).trim()
+    }
+
+    if(summary.length >= 139) summary = summary + ' ...'
 
     let author
 
@@ -56,6 +63,7 @@ module.exports = server => {
     const post = new Post({
       owner: author[0]._id,
       title,
+      summary,
       body
     })
 
