@@ -3,7 +3,11 @@ import { Component } from 'react'
 class Post extends Component {
   render() {
     const { title,
-            body } = this.props.post
+            summary } = this.props.post
+
+    const styleFix = {
+                       wordBreak: 'break-word'
+                     }
 
     return (
       <div className='row'>
@@ -11,7 +15,7 @@ class Post extends Component {
           <div className='card'>
             <div className='card-content'>
               <span className='card-title'>{ title }</span>
-              <p>{ body }</p>
+              <p style={ styleFix }>{ summary }</p>
             </div>
           </div>
         </div>
