@@ -26,6 +26,7 @@ class App extends Component {
       logoutLink: 'logout',
       refreshLink: 'refresh',
       postsLink: 'posts',
+      posts: [],
       jwt: '',
       logged: false
     }
@@ -136,7 +137,9 @@ class App extends Component {
     })
     .then(
       (res) => {
-        console.log(res.data)
+        if(res.status === 200) {
+          this.setState({ posts: res.data })
+        }
       },
       (err) => {
         console.log(this.state.postsLink, err)
@@ -158,6 +161,7 @@ class App extends Component {
                   key='mainDisplay'
                   logged={ this.state.logged }
                   getPosts={ this.getPosts }
+                  posts={ this.state.posts }
                 /> }
             />
             <Route

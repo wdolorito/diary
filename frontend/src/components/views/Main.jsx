@@ -1,17 +1,47 @@
 import { Component } from 'react'
+import Posts from '../Fragments/Posts'
 
 class Main extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      received: false
+    }
+  }
+
   componentDidMount() {
   }
 
+  componentWillUnmount() {
+  }
+
   componentDidUpdate() {
-    this.props.getPosts()
+    if(!this.state.received) {
+      this.props.getPosts()
+      this.setState({ received: true })
+    }
   }
 
   render() {
-    return (
-      <div>This is the main page.</div>
-    )
+    if(this.state.received && this.props.posts.length > 1) {
+      return (
+        <Posts
+          key='allPostsShort'
+          posts={ this.props.posts }
+        />
+      )
+    }
+
+    if(this.state.received && this.props.posts.length === 1) {
+      return (
+        <div className='container'>
+          <h1>Nothing to see here</h1>
+        </div>
+      )
+    }
+
+    return null
   }
 }
 
