@@ -149,12 +149,13 @@ module.exports = server => {
       if(title) set.title = title
       if(body) set.body = body
 
-      if(body !== undefined && summary === undefined) {
-        summary = body.substring(0, 140).trim()
-        if(summary.length >= 139) summary = summary + ' ...'
-      }
+      if(body !== undefined && summary === undefined) summary = body.substring(0, 140).trim()
 
-      if(summary) set.summary = summary
+      if(summary) {
+        summary = summary.substring(0, 140).trim()
+        if(summary.length >= 139) summary = summary + ' ...'
+        set.summary = summary
+      }
 
       try {
         await Post.findOneAndUpdate({ _id: id }, { $set: set })
