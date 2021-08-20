@@ -22,7 +22,7 @@ class App extends Component {
     this.cancel = null
 
     this.state = {
-      baseLink: 'http://192.168.15.20:5000/',
+      baseLink: 'http://localhost:5000/',
       loginLink: 'login',
       logoutLink: 'logout',
       refreshLink: 'refresh',
@@ -166,6 +166,7 @@ class App extends Component {
                   getPosts={ this.getPosts }
                   posts={ this.state.posts }
                   received={ this.state.received }
+                  reverse={ true }
                 /> }
             />
             <Route
@@ -174,7 +175,16 @@ class App extends Component {
             />
             <Route
               path='/latest'
-              component={ Latest }
+              render={ (props) =>
+                <Main
+                  { ...props }
+                  key='latestDisplay'
+                  logged={ this.state.logged }
+                  getPosts={ this.getPosts }
+                  posts={ this.state.posts }
+                  received={ this.state.received }
+                  reverse={ false }
+                /> }
             />
             <Route
               path='/posts'

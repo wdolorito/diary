@@ -4,18 +4,22 @@ import Post from './Post'
 class Posts extends Component {
   render() {
     const posts = this.props.posts
-    const data = posts.slice(1)
+    let data = posts.slice(1)
+    if(!this.props.reverse) data = data.reverse()
+    console.log(this.props.reverse)
 
     return (
       <div className='container'>
 
-      { data.map((post, index) => (
-        <Post
-          key={ index }
-          post={ post }
-          author={ posts[0] }
-        />
-      )) }
+      {
+        data.map((post, index) => (
+          <Post
+            key={ index }
+            post={ post }
+            author={ posts[0] }
+          />
+        ))
+      }
 
       </div>
     )

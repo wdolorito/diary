@@ -8,7 +8,7 @@ const utils = require('../utility/jwtutils')
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
-      res(await Owner.find().select('-_id').select('-owner').select('-updatedAt').select('-__v').sort({ "createdAt": -1 }))
+      res(await Owner.find().select('-_id').select('-owner').select('-updatedAt').select('-__v').sort({ "createdAt": 1 }))
     } catch(err) {
       rej(err)
     }
@@ -18,7 +18,7 @@ const getAuthor = () => {
 const getAuthorForPost = () => {
   return new Promise(async (res, rej) => {
     try {
-      res(await Owner.find().sort({ "createdAt": -1 }))
+      res(await Owner.find().sort({ "createdAt": 1 }))
     } catch(err) {
       rej(err)
     }
@@ -88,7 +88,7 @@ module.exports = server => {
     }
 
     try {
-      const posts = await Post.find().select('-__v').select('-owner')
+      const posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": 1 })
       const length = posts.length
       for(count = 0; count < length; count++) {
         tosend.push(posts[count])

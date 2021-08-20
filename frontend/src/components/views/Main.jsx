@@ -20,6 +20,7 @@ class Main extends Component {
         <Posts
           key='allPostsShort'
           posts={ this.props.posts }
+          reverse={ this.props.reverse }
         />
       )
     }
