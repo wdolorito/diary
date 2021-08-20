@@ -12,7 +12,8 @@ import Error from './components/views/Error'
 import Latest from './components/views/Latest'
 import Login from './components/views/Login'
 import Posts from './components/views/Posts'
-import PostEditor from './components/Fragments/PostEditor'
+import Display from './components/views/Display'
+import PostEditor from './components/views/PostEditor'
 
 class App extends Component {
   constructor(props) {
@@ -21,11 +22,12 @@ class App extends Component {
     this.cancel = null
 
     this.state = {
-      baseLink: 'http://localhost:5000/',
+      baseLink: 'http://192.168.15.20:5000/',
       loginLink: 'login',
       logoutLink: 'logout',
       refreshLink: 'refresh',
       postsLink: 'posts',
+      received: false,
       posts: [],
       jwt: '',
       logged: false
@@ -139,6 +141,7 @@ class App extends Component {
       (res) => {
         if(res.status === 200) {
           this.setState({ posts: res.data })
+          this.setState({ received: true })
         }
       },
       (err) => {
@@ -162,6 +165,7 @@ class App extends Component {
                   logged={ this.state.logged }
                   getPosts={ this.getPosts }
                   posts={ this.state.posts }
+                  received={ this.state.received }
                 /> }
             />
             <Route
@@ -175,6 +179,10 @@ class App extends Component {
             <Route
               path='/posts'
               component={ Posts }
+            />
+            <Route
+              path='/post'
+              component={ Display }
             />
             <Route
               path='/editor'

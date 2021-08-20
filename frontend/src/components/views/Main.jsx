@@ -2,14 +2,6 @@ import { Component } from 'react'
 import Posts from '../Fragments/Posts'
 
 class Main extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      received: false
-    }
-  }
-
   componentDidMount() {
   }
 
@@ -17,14 +9,13 @@ class Main extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.received) {
+    if(!this.props.received) {
       this.props.getPosts()
-      this.setState({ received: true })
     }
   }
 
   render() {
-    if(this.state.received && this.props.posts.length > 1) {
+    if(this.props.received && this.props.posts.length > 1) {
       return (
         <Posts
           key='allPostsShort'
@@ -33,7 +24,7 @@ class Main extends Component {
       )
     }
 
-    if(this.state.received && this.props.posts.length === 1) {
+    if(this.props.received && this.props.posts.length === 1) {
       return (
         <div className='container'>
           <h1>Nothing to see here</h1>

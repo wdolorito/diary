@@ -6,6 +6,10 @@
   filter: invert(100%);
 }
 
-body {
+#avatar {
+  height: 60px;
+}
+
+body .full-post {
   margin-bottom: 40px;
 }

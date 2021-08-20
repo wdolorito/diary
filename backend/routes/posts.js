@@ -142,12 +142,20 @@ module.exports = server => {
     const id = req.params.id || null
 
     if(id !== null) {
+      const { title, body } = req.body
+      let { summary } = req.body
+
+      if(summary === undefined) {
+        summary = body.substring(0, 140).trim()
+      }
+
+      if(summary.length >= 139) summary = summary + ' ...'
       try {
-        await Post.findOneAndUpdate({ _id: id}, { $set: req.body })
+        await Post.findOneAndUpdate({ _id: id}, { title, body, summary })
         res.send(200, 'updated post')
         next()
       } catch(err) {
-        return next(new errors.ResourceNotFoundError('Unable to update Post ' + id))
+        return next(new errors.InternalError('Unable to update Post ' + id))
       }
     }
 

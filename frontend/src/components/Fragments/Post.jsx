@@ -1,26 +1,37 @@
 import { Component } from 'react'
+import { Link } from 'react-router-dom'
 
 class Post extends Component {
   render() {
-    const { title,
-            summary } = this.props.post
+    if(this.props.post) {
+      const { title,
+              summary,
+              createdAt } = this.props.post
+      const friendlyURL = title.replace(/\s+/g, '-').toLowerCase()
+      const dispCreatedAt = new Date(createdAt).toUTCString()
 
-    const styleFix = {
-                       wordBreak: 'break-word'
-                     }
-
-    return (
-      <div className='row'>
-        <div className='col s12'>
-          <div className='card'>
+      return (
+        <Link
+          to={{
+            pathname: '/post',
+            hash: friendlyURL,
+            post: this.props.post,
+            author: this.props.author
+          }}
+          style={{ all: 'unset' }}>
+          <div className='card-panel hoverable'>
             <div className='card-content'>
-              <span className='card-title'>{ title }</span>
-              <p style={ styleFix }>{ summary }</p>
+              <h4 className='card-title'>{ title }</h4>
+              <em>{ dispCreatedAt }</em>
+              <p className='truncate flow-text'>{ summary }</p>
             </div>
           </div>
-        </div>
-      </div>
-    )
+        </Link>
+      )
+    }
+
+    this.props.history.push('/')
+    this.props.history.go();
   }
 }
 
