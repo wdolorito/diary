@@ -142,16 +142,22 @@ module.exports = server => {
     const id = req.params.id || null
 
     if(id !== null) {
-      const { title, body } = req.body
-      let { summary } = req.body
+      let { title, body, summary } = req.body
 
-      if(summary === undefined) {
+      const set = {}
+
+      if(title) set.title = title
+      if(body) set.body = body
+
+      if(body !== undefined && summary === undefined) {
         summary = body.substring(0, 140).trim()
+        if(summary.length >= 139) summary = summary + ' ...'
       }
 
-      if(summary.length >= 139) summary = summary + ' ...'
+      if(summary) set.summary = summary
+
       try {
-        await Post.findOneAndUpdate({ _id: id}, { title, body, summary })
+        await Post.findOneAndUpdate({ _id: id }, { $set: set })
         res.send(200, 'updated post')
         next()
       } catch(err) {
