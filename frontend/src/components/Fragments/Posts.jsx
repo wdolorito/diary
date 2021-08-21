@@ -6,7 +6,6 @@ class Posts extends Component {
     const posts = this.props.posts
     let data = posts.slice(1)
     if(!this.props.reverse) data = data.reverse()
-    console.log(this.props.reverse)
 
     return (
       <div className='container'>

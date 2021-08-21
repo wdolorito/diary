@@ -9,9 +9,7 @@ import Footer from './components/layout/Footer'
 import Main from './components/views/Main'
 import About from './components/views/About'
 import Error from './components/views/Error'
-import Latest from './components/views/Latest'
 import Login from './components/views/Login'
-import Posts from './components/views/Posts'
 import Display from './components/views/Display'
 import PostEditor from './components/views/PostEditor'
 
@@ -27,6 +25,7 @@ class App extends Component {
       logoutLink: 'logout',
       refreshLink: 'refresh',
       postsLink: 'posts',
+      refreshed: false,
       received: false,
       posts: [],
       jwt: '',
@@ -46,6 +45,7 @@ class App extends Component {
   }
 
   componentDidUpdate() {
+    if(!this.state.refreshed) this.checkLogStatus()
   }
 
   setLinks = () => {
@@ -74,7 +74,6 @@ class App extends Component {
 
   resetToken = () => {
     localStorage.removeItem('token')
-    this.setState({ didRefresh: false })
   }
 
   setLogged = () => {
@@ -97,6 +96,7 @@ class App extends Component {
           this.setJwt(res.data.token)
           this.setLogged()
           this.storeToken(res.data.refresh)
+          this.setState({ refreshed: true })
         }
       },
       (err) => {
@@ -113,19 +113,20 @@ class App extends Component {
         method: 'post',
         url: this.state.refreshLink,
         cancelToken: new CancelToken(c => this.cancel = c),
-        data: { token }
+        data: { token: token }
       })
       .then(
         (res) => {
+          console.log(res)
           if(res.status === 200) {
             this.setJwt(res.data.token)
             this.setLogged()
             this.storeToken(res.data.refresh)
+            this.setState({ refreshed: true })
           }
         },
         (err) => {
-          this.resetJwt()
-          this.resetToken()
+          console.log(err)
         }
       )
     }
@@ -150,11 +151,19 @@ class App extends Component {
     )
   }
 
+  checkLogStatus = () => {
+    if(this.getToken() !== null) {
+      this.doRefresh()
+    }
+  }
+
   render() {
     return (
       <Router>
         <div className='App'>
-          <Header />
+          <Header
+            logged = { this.state.logged }
+          />
           <Switch>
             <Route
               exact path='/'
@@ -162,7 +171,6 @@ class App extends Component {
                 <Main
                   { ...props }
                   key='mainDisplay'
-                  logged={ this.state.logged }
                   getPosts={ this.getPosts }
                   posts={ this.state.posts }
                   received={ this.state.received }
@@ -170,11 +178,11 @@ class App extends Component {
                 /> }
             />
             <Route
-              path='/about'
+              exact path='/about'
               component={ About }
             />
             <Route
-              path='/latest'
+              exact path='/latest'
               render={ (props) =>
                 <Main
                   { ...props }
@@ -185,10 +193,6 @@ class App extends Component {
                   received={ this.state.received }
                   reverse={ false }
                 /> }
-            />
-            <Route
-              path='/posts'
-              component={ Posts }
             />
             <Route
               path='/post'

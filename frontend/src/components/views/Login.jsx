@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import { Component } from 'react'
 
 class Login extends Component {
   constructor(props) {
@@ -38,7 +38,7 @@ class Login extends Component {
       return null
     } else {
       return (
-        <React.Fragment>
+        <div className='container'>
           <h4 className='center-align'>Login to edit</h4>
           <div className='row'>
             <form className='col s12' onSubmit={ this.submitHandler }>
@@ -84,7 +84,7 @@ class Login extends Component {
               </div>
             </form>
           </div>
-        </React.Fragment>
+        </div>
       )
     }
   }

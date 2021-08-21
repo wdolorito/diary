@@ -9,9 +9,8 @@ class Footer extends Component {
             <h5 className='white-text'>Quick Links</h5>
             <ul>
               <li><Link className='grey-text text-lighten-3' title='Home' to='/'>Home</Link></li>
-              <li><Link className='grey-text text-lighten-3' title='About' to='about'>About</Link></li>
               <li><Link className='grey-text text-lighten-3' title='Latest Posts' to='latest'>Latest Posts</Link></li>
-              <li><Link className='grey-text text-lighten-3' title='All Posts' to='posts'>All Posts</Link></li>
+              <li><Link className='grey-text text-lighten-3' title='About' to='about'>About</Link></li>
             </ul>
           </div>
           <div className='footer-copyright'>

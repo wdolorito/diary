@@ -10,9 +10,11 @@ class Header extends Component {
           <Link to='/' className='brand-logo' title='Home'><img alt='logo' src={ logo }/></Link>
           <ul id="nav-mobile" className='right hide-on-med-and-down'>
             <li><Link to='latest' title='Latest'>Latest Posts</Link></li>
-            <li><Link to='posts' title='All Posts'>All Posts</Link></li>
             <li><Link to='about' title='About'>About</Link></li>
           </ul>
+
+          { (this.props.logged) && <h1>logged in</h1>}
+          { (!this.props.logged) && <h1>logged out</h1>}
         </div>
       </nav>
     )
