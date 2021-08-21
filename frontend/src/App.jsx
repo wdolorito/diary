@@ -26,6 +26,7 @@ class App extends Component {
       refreshLink: 'refresh',
       postsLink: 'posts',
       refreshed: false,
+      inRefresh: false,
       received: false,
       posts: [],
       jwt: '',
@@ -45,14 +46,14 @@ class App extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.refreshed) this.checkLogStatus()
+    if(!this.state.refreshed && !this.state.inRefresh) this.checkLogStatus()
   }
 
   setLinks = () => {
-    this.setState({ loginLink: this.state.baseLink + this.state.loginLink })
-    this.setState({ logoutLink: this.state.baseLink + this.state.logoutLink })
-    this.setState({ refreshLink: this.state.baseLink + this.state.refreshLink })
-    this.setState({ postsLink: this.state.baseLink + this.state.postsLink })
+    this.setState({ loginLink: this.state.baseLink + this.state.loginLink,
+                    logoutLink: this.state.baseLink + this.state.logoutLink,
+                    refreshLink: this.state.baseLink + this.state.refreshLink,
+                    postsLink: this.state.baseLink + this.state.postsLink })
   }
 
   setJwt = (newjwt) => {
@@ -81,43 +82,17 @@ class App extends Component {
   }
 
   doLogin = (log, pass) => {
-    axios({
-      method: 'post',
-      url: this.state.loginLink,
-      cancelToken: new CancelToken(c => this.cancel = c),
-      data: {
-        email: log,
-        password: pass
-      }
-    })
-    .then(
-      (res) => {
-        if(res.status === 200) {
-          this.setJwt(res.data.token)
-          this.setLogged()
-          this.storeToken(res.data.refresh)
-          this.setState({ refreshed: true })
-        }
-      },
-      (err) => {
-        alert('Unable to log in.')
-        this.resetJwt()
-      }
-    )
-  }
-
-  doRefresh = () => {
-    const token = this.getToken()
-    if(token) {
       axios({
         method: 'post',
-        url: this.state.refreshLink,
+        url: this.state.loginLink,
         cancelToken: new CancelToken(c => this.cancel = c),
-        data: { token: token }
+        data: {
+          email: log,
+          password: pass
+        }
       })
       .then(
         (res) => {
-          console.log(res)
           if(res.status === 200) {
             this.setJwt(res.data.token)
             this.setLogged()
@@ -126,10 +101,39 @@ class App extends Component {
           }
         },
         (err) => {
-          console.log(err)
+          alert('Unable to log in.')
+          this.resetJwt()
         }
       )
-    }
+  }
+
+  doRefresh = () => {
+    this.setState({ inRefresh: true }, () => {
+        const token = this.getToken()
+        if(token) {
+          axios({
+            method: 'post',
+            url: this.state.refreshLink,
+            cancelToken: new CancelToken(c => this.cancel = c),
+            data: { token }
+          })
+          .then(
+            (res) => {
+              if(res.status === 200) {
+                this.setJwt(res.data.token)
+                this.setLogged()
+                this.storeToken(res.data.refresh)
+                this.setState({ refreshed: true })
+              }
+            },
+            (err) => {
+              this.resetJwt()
+              this.resetToken()
+            }
+          )
+        }
+      }
+    )
   }
 
   getPosts = () => {
