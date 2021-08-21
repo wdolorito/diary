@@ -3,7 +3,7 @@ import { Component } from 'react'
 class Error extends Component {
   render() {
     return (
-      <div>This is the error page.</div>
+      <div className='container'>This is the error page.</div>
     )
   }
 }
