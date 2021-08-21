@@ -11,10 +11,8 @@ class Header extends Component {
           <ul id="nav-mobile" className='right hide-on-med-and-down'>
             <li><Link to='latest' title='Latest'>Latest Posts</Link></li>
             <li><Link to='about' title='About'>About</Link></li>
+            { (this.props.logged ) && <li><Link to='#' onClick={ this.props.doLogout }>Logout</Link></li>}
           </ul>
-
-          { (this.props.logged) && <h1>logged in</h1>}
-          { (!this.props.logged) && <h1>logged out</h1>}
         </div>
       </nav>
     )

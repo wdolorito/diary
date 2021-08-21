@@ -136,6 +136,31 @@ class App extends Component {
     )
   }
 
+  doLogout = () => {
+    const token = this.getToken()
+    if(token) {
+      axios({
+        method: 'post',
+        url: this.state.logoutLink,
+        cancelToken: new CancelToken(c => this.cancel = c),
+        headers: {
+          'Authorization': 'Bearer ' + this.state.jwt
+        },
+        data: { token }
+      })
+      .then(
+        (res) => {
+          this.resetJwt()
+          this.resetToken()
+        },
+        (err) => {
+          this.resetJwt()
+          this.resetToken()
+        }
+      )
+    }
+  }
+
   getPosts = () => {
     axios({
       method: 'get',
@@ -167,6 +192,7 @@ class App extends Component {
         <div className='App'>
           <Header
             logged = { this.state.logged }
+            doLogout = { this.doLogout }
           />
           <Switch>
             <Route
