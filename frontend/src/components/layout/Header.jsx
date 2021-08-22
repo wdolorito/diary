@@ -24,12 +24,15 @@ class Header extends Component {
           <ul className='right hide-on-med-and-down'>
             <li><Link to='latest' title='Latest'>Latest Posts</Link></li>
             <li><Link to='about' title='About'>About</Link></li>
-            { (this.props.logged ) && <li><Link to='#' onClick={ this.props.doLogout }>Logout</Link></li>}
+            { (this.props.logged) && <li><Link to='editor' title='Add Post'>Add Post</Link></li> }
+            { (this.props.logged) && <li><Link to='#' title='Logout' onClick={ this.props.doLogout }>Logout</Link></li> }
           </ul>
           <ul id='nav-mobile' className='side-nav'>
+            <li><Link to='/' title='Home'>Home</Link></li>
             <li><Link to='latest' title='Latest'>Latest Posts</Link></li>
             <li><Link to='about' title='About'>About</Link></li>
-            { (this.props.logged ) && <li><Link to='#' onClick={ this.props.doLogout }>Logout</Link></li>}
+            { (this.props.logged) && <li><Link to='editor' title='Add Post'>Add Post</Link></li> }
+            { (this.props.logged) && <li><Link to='#' title='Logout' onClick={ this.props.doLogout }>Logout</Link></li> }
           </ul>
         </div>
       </nav>

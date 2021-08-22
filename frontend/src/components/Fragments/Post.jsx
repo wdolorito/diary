@@ -7,7 +7,11 @@ class Post extends Component {
       const { title,
               summary,
               createdAt } = this.props.post
-      const friendlyURL = title.replace(/\s+/g, '-').toLowerCase()
+      const friendlyURL = title.replace(/\s+/g, '-')
+                               .replace(/"/g, '')
+                               .replace(/'/g, '')
+                               .replace(/,/g, '')
+                               .toLowerCase()
       const dispCreatedAt = new Date(createdAt).toUTCString()
 
       return (
