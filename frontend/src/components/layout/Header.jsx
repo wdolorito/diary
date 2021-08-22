@@ -4,7 +4,15 @@ import logo from '../../logo.png'
 
 class Header extends Component {
   componentDidUpdate() {
+    if(window.$('.button-collapse').length > 0) {
+      this.initNav()
+    } else {
+      setTimeout(this.initNav, 100)
+    }
+  }
 
+  initNav = () => {
+    window.$('.button-collapse').sideNav()
   }
 
   render() {
