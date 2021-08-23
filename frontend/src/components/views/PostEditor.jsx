@@ -1,8 +1,6 @@
 import React from 'react'
-import { EditorState, convertToRaw } from 'draft-js'
-import { Editor } from 'react-draft-wysiwyg'
-import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import draftToHtml from 'draftjs-to-html'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 
 class PostEditor extends React.Component {
   constructor(props) {
@@ -11,8 +9,7 @@ class PostEditor extends React.Component {
     this.state = {
       title: '',
       summary: '',
-      body: '',
-      editorState: null
+      body: ''
     }
 
     this.baseState = this.state
@@ -30,10 +27,9 @@ class PostEditor extends React.Component {
     console.log(e.target.value)
   }
 
-  onEditorStateChange = (editorState) => {
-    const body = draftToHtml(convertToRaw(editorState.getCurrentContent()))
-    this.setState({ editorState, body })
-    console.log(body)
+  onEditorStateChange = (content, delta, source, editor) => {
+    this.setState({ body: content })
+    console.log(content)
   }
 
   submitForm = (e) => {
@@ -52,50 +48,47 @@ class PostEditor extends React.Component {
   render() {
     return (
       <div className='container'>
-        <div className='row'>
-          <div className='input-field'>
-            <input
-              type='text'
-              className='validate'
-              name='title'
-              value={ this.state.title }
-              onChange={ this.onInputStateChange }
-              placeholder='Title'
-              required
-            />
-            <label htmlFor='title'>Title</label>
-          </div>
-        </div>
-
-        <div className='row'>
-          <div className='input-field'>
-            <input
-              type='text'
-              className='validate'
-              name='summary'
-              value={ this.state.summary }
-              onChange={ this.onInputStateChange }
-              placeholder='Summary'
-              required
-            />
-            <label htmlFor='summary'>Summary</label>
-          </div>
-        </div>
-
-        <div className='row'>
-          <Editor
-            editorState={ this.state.editorState }
-            onEditorStateChange={ this.onEditorStateChange }
+      <div className='row'>
+        <div className='input-field'>
+          <input
+            type='text'
+            className='validate'
+            name='title'
+            value={ this.state.title }
+            onChange={ this.onInputStateChange }
+            placeholder='Title'
+            required
           />
+          <label htmlFor='title'>Title</label>
         </div>
+      </div>
 
-        <div className='row'>
-          <div className='col s3' />
-          <div className='col s6 center-align'>
-            <button className='btn waves-effect waves-light' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></button>
-          </div>
-          <div className='col s3' />
+      <div className='row'>
+        <div className='input-field'>
+          <input
+            type='text'
+            className='validate'
+            name='summary'
+            value={ this.state.summary }
+            onChange={ this.onInputStateChange }
+            placeholder='Summary'
+            required
+          />
+          <label htmlFor='summary'>Summary</label>
         </div>
+      </div>
+
+      <div className='row'>
+        <ReactQuill theme="snow" value={ this.state.body } onChange={ this.onEditorStateChange }/>
+      </div>
+
+      <div className='row'>
+        <div className='col s3' />
+        <div className='col s6 center-align'>
+          <button className='btn waves-effect waves-light' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></button>
+        </div>
+        <div className='col s3' />
+      </div>
       </div>
     )
   }

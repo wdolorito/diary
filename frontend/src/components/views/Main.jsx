@@ -3,6 +3,9 @@ import Posts from '../Fragments/Posts'
 
 class Main extends Component {
   componentDidMount() {
+    if(!this.props.received) {
+      this.props.getPosts()
+    }
   }
 
   componentWillUnmount() {
