@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import { Component} from 'react'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
-class PostEditor extends React.Component {
+class PostEditor extends Component {
   constructor(props) {
     super(props)
 
@@ -22,14 +22,15 @@ class PostEditor extends React.Component {
     this.resetForm()
   }
 
-  onInputStateChange = (e) => {
+  onTextInputChange = (e) => {
     this.setState({ [ e.target.name ]: e.target.value })
     console.log(e.target.value)
   }
 
-  onEditorStateChange = (content, delta, source, editor) => {
-    this.setState({ body: content })
-    console.log(content)
+  onEditorChange = (e, editor) => {
+    const body = editor.getData();
+    this.setState({ body })
+    console.log(body);
   }
 
   submitForm = (e) => {
@@ -55,7 +56,7 @@ class PostEditor extends React.Component {
             className='validate'
             name='title'
             value={ this.state.title }
-            onChange={ this.onInputStateChange }
+            onChange={ this.onTextInputChange }
             placeholder='Title'
             required
           />
@@ -70,7 +71,7 @@ class PostEditor extends React.Component {
             className='validate'
             name='summary'
             value={ this.state.summary }
-            onChange={ this.onInputStateChange }
+            onChange={ this.onTextInputChange }
             placeholder='Summary'
             required
           />
@@ -79,7 +80,11 @@ class PostEditor extends React.Component {
       </div>
 
       <div className='row'>
-        <ReactQuill theme="snow" value={ this.state.body } onChange={ this.onEditorStateChange }/>
+        <CKEditor
+            editor={ ClassicEditor }
+            data={ this.state.body }
+            onChange={ this.onEditorChange }
+        />
       </div>
 
       <div className='row'>
