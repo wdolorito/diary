@@ -88,7 +88,7 @@ module.exports = server => {
     }
 
     try {
-      const posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": 1 })
+      const posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": -1 })
       const length = posts.length
       for(count = 0; count < length; count++) {
         tosend.push(posts[count])

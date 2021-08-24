@@ -5,7 +5,6 @@ class Posts extends Component {
   render() {
     const posts = this.props.posts
     let data = posts.slice(1)
-    if(!this.props.reverse) data = data.reverse()
 
     return (
       <div className='container'>
@@ -16,6 +15,7 @@ class Posts extends Component {
             key={ index }
             post={ post }
             author={ posts[0] }
+            logged={ this.props.logged }
           />
         ))
       }

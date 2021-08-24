@@ -44,9 +44,15 @@ class Display extends Component {
             <blockquote>updated: { dispUpdatedAt }</blockquote>
           }
           <div style={ styleFix } dangerouslySetInnerHTML={{ __html: body }} />
+
+          { (this.props.location.logged) &&
+            <button className='btn waves-effect waves-light'>edit<i className='material-icons right'>send</i></button>
+          }
         </div>
       )
     }
+
+    return null
 
     this.props.history.push('/')
     this.props.history.go()

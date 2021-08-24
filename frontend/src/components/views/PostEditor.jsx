@@ -51,13 +51,13 @@ class PostEditor extends Component {
         payload.summary = body.replace(/<[^>]+>/g, '')
       }
       this.props.doPost(payload)
-      this.props.history.push('/latest')
+      this.props.history.push('/')
     } else {
       let msg = 'Please add '
       if(!title) msg += 'a title'
       if(!body) msg += 'and some content'
       msg = msg.replace(/titleand/g, 'title and')
-      msg = msg.replace(/add\ and/g, 'add')
+      msg = msg.replace(/add and/g, 'add')
       msg += '.'
       alert(msg)
     }

@@ -18,9 +18,10 @@ class Post extends Component {
         <Link
           to={{
             pathname: '/post',
-            hash: friendlyURL,
+            search: friendlyURL,
             post: this.props.post,
-            author: this.props.author
+            author: this.props.author,
+            logged: this.props.logged
           }}
           style={{ all: 'unset' }}>
           <div className='card-panel hoverable'>

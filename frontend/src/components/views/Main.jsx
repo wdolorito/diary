@@ -22,8 +22,8 @@ class Main extends Component {
       return (
         <Posts
           key='allPostsShort'
+          logged={ this.props.logged }
           posts={ this.props.posts }
-          reverse={ this.props.reverse }
         />
       )
     }

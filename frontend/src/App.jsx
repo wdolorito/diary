@@ -150,16 +150,11 @@ class App extends Component {
         },
         data: { token }
       })
-      .then(
-        (res) => {
-          this.resetJwt()
-          this.resetToken()
-        },
-        (err) => {
-          this.resetJwt()
-          this.resetToken()
-        }
-      )
+      .then((res, err) => {
+        this.resetJwt()
+        this.resetToken()
+        this.setState({ received: false }, this.getPosts())
+      })
     }
   }
 
@@ -210,6 +205,30 @@ class App extends Component {
     }
   }
 
+  updatePost = (payload) => {
+    const pLL = this.state.postLink.length
+    if(pLL > 4) {
+      axios({
+        method: 'put',
+        url: this.state.postLink,
+        cancelToken: new CancelToken(c => this.cancel = c),
+        headers: {
+          'Authorization': 'Bearer ' + this.state.jwt
+        },
+        data: payload
+      })
+      .then(
+        (res) => {
+          this.setState({ received: false }, this.getPosts())
+        },
+        (err) => {
+          console.log(this.state.postLink)
+          console.log(err)
+        }
+      )
+    }
+  }
+
   checkLogStatus = () => {
     if(this.getToken() !== null) {
       this.doRefresh()
@@ -231,28 +250,15 @@ class App extends Component {
                 <Main
                   { ...props }
                   key='mainDisplay'
+                  logged = { this.state.logged }
                   getPosts={ this.getPosts }
                   posts={ this.state.posts }
                   received={ this.state.received }
-                  reverse={ true }
                 /> }
             />
             <Route
               exact path='/about'
               component={ About }
-            />
-            <Route
-              exact path='/latest'
-              render={ (props) =>
-                <Main
-                  { ...props }
-                  key='latestDisplay'
-                  logged={ this.state.logged }
-                  getPosts={ this.getPosts }
-                  posts={ this.state.posts }
-                  received={ this.state.received }
-                  reverse={ false }
-                /> }
             />
             <Route
               path='/post'
