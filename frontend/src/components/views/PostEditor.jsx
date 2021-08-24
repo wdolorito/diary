@@ -16,6 +16,10 @@ class PostEditor extends Component {
   }
 
   componentDidMount() {
+    console.log(ClassicEditor.builtinPlugins.map( plugin => plugin.pluginName ))
+    if(!this.props.logged) {
+      this.props.history.push('/')
+    }
   }
 
   componentWillUnmount() {
@@ -24,13 +28,11 @@ class PostEditor extends Component {
 
   onTextInputChange = (e) => {
     this.setState({ [ e.target.name ]: e.target.value })
-    console.log(e.target.value)
   }
 
   onEditorChange = (e, editor) => {
     const body = editor.getData();
     this.setState({ body })
-    console.log(body);
   }
 
   submitForm = (e) => {
@@ -38,8 +40,27 @@ class PostEditor extends Component {
     const title = this.state.title
     const summary = this.state.summary
     const body = this.state.body
-    const payload = { title, summary, body }
-    console.log(payload)
+    const payload = {}
+
+    if(title && body) {
+      payload.title = title
+      payload.body = body
+      if(summary) {
+        payload.summary = summary
+      } else {
+        payload.summary = body.replace(/<[^>]+>/g, '')
+      }
+      this.props.doPost(payload)
+      this.props.history.push('/latest')
+    } else {
+      let msg = 'Please add '
+      if(!title) msg += 'a title'
+      if(!body) msg += 'and some content'
+      msg = msg.replace(/titleand/g, 'title and')
+      msg = msg.replace(/add\ and/g, 'add')
+      msg += '.'
+      alert(msg)
+    }
   }
 
   resetForm = () => {
@@ -73,7 +94,6 @@ class PostEditor extends Component {
             value={ this.state.summary }
             onChange={ this.onTextInputChange }
             placeholder='Summary'
-            required
           />
           <label htmlFor='summary'>Summary</label>
         </div>

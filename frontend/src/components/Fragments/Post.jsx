@@ -35,7 +35,7 @@ class Post extends Component {
     }
 
     this.props.history.push('/')
-    this.props.history.go();
+    this.props.history.go()
   }
 }
 

@@ -25,6 +25,7 @@ class App extends Component {
       logoutLink: 'logout',
       refreshLink: 'refresh',
       postsLink: 'posts',
+      postLink: 'post',
       refreshed: false,
       inRefresh: false,
       received: false,
@@ -53,7 +54,8 @@ class App extends Component {
     this.setState({ loginLink: this.state.baseLink + this.state.loginLink,
                     logoutLink: this.state.baseLink + this.state.logoutLink,
                     refreshLink: this.state.baseLink + this.state.refreshLink,
-                    postsLink: this.state.baseLink + this.state.postsLink })
+                    postsLink: this.state.baseLink + this.state.postsLink,
+                    postLink: this.state.baseLink + this.state.postLink })
   }
 
   setJwt = (newjwt) => {
@@ -162,22 +164,50 @@ class App extends Component {
   }
 
   getPosts = () => {
-    axios({
-      method: 'get',
-      url: this.state.postsLink,
-      cancelToken: new CancelToken(c => this.cancel = c)
-    })
-    .then(
-      (res) => {
-        if(res.status === 200) {
-          this.setState({ posts: res.data })
-          this.setState({ received: true })
+    const pLL = this.state.postsLink.length
+    if(pLL > 5) {
+      axios({
+        method: 'get',
+        url: this.state.postsLink,
+        cancelToken: new CancelToken(c => this.cancel = c)
+      })
+      .then(
+        (res) => {
+          if(res.status === 200) {
+            this.setState({ posts: res.data })
+            this.setState({ received: true })
+          }
+        },
+        (err) => {
+          console.log(this.state.postsLink)
+          console.log(err.response)
         }
-      },
-      (err) => {
-        console.log(this.state.postsLink, err)
-      }
-    )
+      )
+    }
+  }
+
+  doPost = (payload) => {
+    const pLL = this.state.postLink.length
+    if(pLL > 4) {
+      axios({
+        method: 'post',
+        url: this.state.postLink,
+        cancelToken: new CancelToken(c => this.cancel = c),
+        headers: {
+          'Authorization': 'Bearer ' + this.state.jwt
+        },
+        data: payload
+      })
+      .then(
+        (res) => {
+          this.setState({ received: false }, this.getPosts())
+        },
+        (err) => {
+          console.log(this.state.postLink)
+          console.log(err)
+        }
+      )
+    }
   }
 
   checkLogStatus = () => {
@@ -229,8 +259,14 @@ class App extends Component {
               component={ Display }
             />
             <Route
-              path='/editor'
-              component={ PostEditor }
+              exact path='/editor'
+              render={ (props) =>
+                <PostEditor
+                  { ...props }
+                  key='editorDisplay'
+                  logged={ this.state.logged }
+                  doPost={ this.doPost }
+                /> }
             />
             <Route
               exact path='/quixotic'

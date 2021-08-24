@@ -17,6 +17,10 @@ class Display extends Component {
               lastName,
               handle } = this.props.location.author
 
+      const styleFix = {
+        wordBreak: 'break-word'
+      }
+
       return (
         <div className='container full-post'>
           <h2>{ title }</h2>
@@ -39,13 +43,14 @@ class Display extends Component {
           { (updatedAt !== createdAt ) &&
             <blockquote>updated: { dispUpdatedAt }</blockquote>
           }
-          <div className='flow-text'>{ body }</div>
+          <div style={ styleFix } dangerouslySetInnerHTML={{ __html: body }} />
         </div>
       )
     }
 
     this.props.history.push('/')
-    this.props.history.go();  }
+    this.props.history.go()
+  }
 }
 
 export default Display
