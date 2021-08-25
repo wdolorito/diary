@@ -40,7 +40,7 @@ class Login extends Component {
 
   render() {
     return (
-      <div className='container'>
+      <div>
         <h4 className='center-align'>Login to edit</h4>
         <div className='row'>
           <form className='col s12' onSubmit={ this.submitHandler }>
@@ -79,8 +79,7 @@ class Login extends Component {
             <div className='row'>
               <div className='col s3' />
               <div className='col s6'>
-                <button className='btn waves-effect waves-light' type='submit' name='action'>
-                submit<i className='material-icons right'>send</i></button>
+                <button className='btn waves-effect waves-light' type='submit' name='action'>submit<i className='material-icons right'>send</i></button>
               </div>
               <div className='col s3' />
             </div>

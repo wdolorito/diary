@@ -30,8 +30,8 @@ class Main extends Component {
 
     if(this.props.received && this.props.posts.length === 1) {
       return (
-        <div className='container'>
-          <h1>Nothing to see here</h1>
+        <div>
+          <h1 className='center-align'>Nothing to see here</h1>
         </div>
       )
     }

@@ -22,7 +22,7 @@ class Display extends Component {
       }
 
       return (
-        <div className='container full-post'>
+        <div className='full-post'>
           <h2>{ title }</h2>
           <div className='row'>
             <div className='valign-wrapper'>
