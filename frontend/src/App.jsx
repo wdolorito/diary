@@ -12,6 +12,7 @@ import Error from './components/views/Error'
 import Login from './components/views/Login'
 import Display from './components/views/Display'
 import PostEditor from './components/views/PostEditor'
+import PostUpdater from './components/views/PostUpdater'
 
 class App extends Component {
   constructor(props) {
@@ -181,51 +182,28 @@ class App extends Component {
     }
   }
 
-  doPost = (payload) => {
+  callPost = (type, payload, id) => {
     const pLL = this.state.postLink.length
     if(pLL > 4) {
-      axios({
-        method: 'post',
-        url: this.state.postLink,
-        cancelToken: new CancelToken(c => this.cancel = c),
-        headers: {
-          'Authorization': 'Bearer ' + this.state.jwt
-        },
-        data: payload
-      })
-      .then(
-        (res) => {
-          this.setState({ received: false }, this.getPosts())
-        },
-        (err) => {
-          console.log(this.state.postLink)
-          console.log(err)
-        }
-      )
-    }
-  }
+      let link = this.state.postLink
+      if(id) link += '/' + id
+      const options = {}
+      options.method = type
+      options.url = link
+      options.cancelToken = new CancelToken(c => this.cancel = c)
+      if(type !== 'get') options.headers = { 'Authorization': 'Bearer ' + this.state.jwt }
+      if(payload) options.data = payload
 
-  updatePost = (payload) => {
-    const pLL = this.state.postLink.length
-    if(pLL > 4) {
-      axios({
-        method: 'put',
-        url: this.state.postLink,
-        cancelToken: new CancelToken(c => this.cancel = c),
-        headers: {
-          'Authorization': 'Bearer ' + this.state.jwt
-        },
-        data: payload
-      })
-      .then(
-        (res) => {
-          this.setState({ received: false }, this.getPosts())
-        },
-        (err) => {
-          console.log(this.state.postLink)
-          console.log(err)
-        }
-      )
+      axios(options)
+        .then(
+          (res) => {
+            this.setState({ received: false }, this.getPosts())
+          },
+          (err) => {
+            console.log(this.state.postLink)
+            console.log(err)
+          }
+        )
     }
   }
 
@@ -267,11 +245,21 @@ class App extends Component {
             <Route
               exact path='/editor'
               render={ (props) =>
-                <PostEditor
+                <PostUpdater
                   { ...props }
                   key='editorDisplay'
                   logged={ this.state.logged }
-                  doPost={ this.doPost }
+                  callPost={ this.callPost }
+                /> }
+            />
+            <Route
+              exact path='/update'
+              render={ (props) =>
+                <PostEditor
+                  { ...props }
+                  key='updatePostDisplay'
+                  logged={ this.state.logged }
+                  callPost={ this.callPost }
                 /> }
             />
             <Route

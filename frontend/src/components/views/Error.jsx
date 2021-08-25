@@ -10,7 +10,7 @@ class Error extends Component {
     return (
       <div>
         <div className='center-align'>
-          <img style={ imgStyleFix } alt='error_image' src='http://lorempixel.com/640/480/nature' />
+          <img style={ imgStyleFix } alt='Some random thing of nature, hopefully.' src='http://lorempixel.com/640/480/nature' />
         </div>
         <h3 className='center-align'>This section does not exist.</h3>
       </div>
