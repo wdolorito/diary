@@ -50,12 +50,12 @@ class Display extends Component {
           }
         </div>
       )
+    } else {
+      this.props.history.push('/')
+      this.props.history.go()
     }
 
     return null
-
-    this.props.history.push('/')
-    this.props.history.go()
   }
 }
 
