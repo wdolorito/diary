@@ -7,7 +7,7 @@ class Posts extends Component {
     let data = posts.slice(1)
 
     return (
-      <div className='container'>
+      <div>
 
       {
         data.map((post, index) => (

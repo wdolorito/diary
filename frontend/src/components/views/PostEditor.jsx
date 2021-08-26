@@ -9,7 +9,9 @@ class PostEditor extends Component {
     this.state = {
       title: '',
       summary: '',
-      body: ''
+      body: '',
+      editor: null,
+      ready: false
     }
 
     this.baseState = this.state
@@ -17,6 +19,9 @@ class PostEditor extends Component {
 
   componentDidMount() {
     console.log(ClassicEditor.builtinPlugins.map( plugin => plugin.pluginName ))
+    if(!this.props.logged) {
+      window.location = '/'
+    }
   }
 
   componentWillUnmount() {
@@ -24,6 +29,19 @@ class PostEditor extends Component {
   }
 
   componentDidUpdate() {
+    if(this.props.location.post) {
+      if(this.state.ready) {
+        this.setState({ ready: false })
+        this.updateEditor()
+      }
+    }
+  }
+
+  setEditor = (editor) => {
+    this.setState({
+                    ready: true,
+                    editor: editor
+                  })
   }
 
   onTextInputChange = (e) => {
@@ -33,6 +51,14 @@ class PostEditor extends Component {
   onEditorChange = (e, editor) => {
     const body = editor.getData();
     this.setState({ body })
+  }
+
+  updateEditor = () => {
+    const editor = this.state.editor
+    if(editor !== null) {
+      const { title, summary, body } = this.props.location.post
+      this.setState({ title, summary, body }, editor.setData(body))
+    }
   }
 
   submitForm = (e) => {
@@ -50,7 +76,11 @@ class PostEditor extends Component {
       } else {
         payload.summary = body.replace(/<[^>]+>/g, '')
       }
-      this.props.callPost('post', payload)
+      if(this.props.location) {
+        this.props.callPost('put', payload, this.props.location.post._id)
+      } else {
+        this.props.callPost('post', payload)
+      }
       this.props.history.push('/')
     } else {
       let msg = 'Please add '
@@ -68,60 +98,79 @@ class PostEditor extends Component {
   }
 
   render() {
-    if(!this.props.logged) {
-      this.props.history.push('/')
-    } else {
-      return (
-        <div>
-          <div className='row'>
-            <div className='input-field'>
-              <input
-                type='text'
-                className='validate'
-                name='title'
-                value={ this.state.title }
-                onChange={ this.onTextInputChange }
-                placeholder='Title'
-                required
-              />
-              <label htmlFor='title'>Title</label>
-            </div>
-          </div>
+    const noTitle = <div className='input-field'>
+                      <input
+                        type='text'
+                        className='validate'
+                        name='title'
+                        value={ this.state.title }
+                        onChange={ this.onTextInputChange }
+                        placeholder='Title'
+                        required
+                      />
+                      <label htmlFor='title'>Title</label>
+                    </div>
 
-          <div className='row'>
-            <div className='input-field'>
-              <input
-                type='text'
-                className='validate'
-                name='summary'
-                value={ this.state.summary }
-                onChange={ this.onTextInputChange }
-                placeholder='Summary'
-              />
-              <label htmlFor='summary'>Summary</label>
-            </div>
-          </div>
+    const hasTitle =  <div className='input-field'>
+                        <input
+                          type='text'
+                          className='validate'
+                          name='title'
+                          value={ this.state.title }
+                          onChange={ this.onTextInputChange }
+                          required
+                        />
+                      </div>
 
-          <div className='row'>
-            <CKEditor
-                editor={ ClassicEditor }
-                data={ this.state.body }
-                onChange={ this.onEditorChange }
-            />
-          </div>
+    const noSummary = <div className='input-field'>
+                        <input
+                          type='text'
+                          className='validate'
+                          name='summary'
+                          value={ this.state.summary }
+                          onChange={ this.onTextInputChange }
+                          placeholder='Summary'
+                        />
+                        <label htmlFor='summary'>Summary</label>
+                      </div>
 
-          <div className='row'>
-            <div className='col s3' />
-            <div className='col s6 center-align'>
-              <button className='btn waves-effect waves-light' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></button>
-            </div>
-            <div className='col s3' />
+    const hasSummary =  <div className='input-field'>
+                          <input
+                            type='text'
+                            className='validate'
+                            name='summary'
+                            value={ this.state.summary }
+                            onChange={ this.onTextInputChange }
+                          />
+                        </div>
+    return (
+      <div className='container'>
+        <div className='row'>
+          { (!this.props.location.post) && noTitle }
+          { (this.props.location.post) && hasTitle }
+        </div>
+
+        <div className='row'>
+          { (!this.props.location.post) && noSummary }
+          { (this.props.location.post) && hasSummary }
+        </div>
+
+        <div className='row'>
+          <CKEditor
+              editor={ ClassicEditor }
+              data={ this.state.body }
+              onReady={ editor => this.setEditor(editor) }
+              onChange={ this.onEditorChange }
+          />
+        </div>
+
+        <div className='row'>
+          <div className='col s12 right-align'>
+            <a className='btn waves-effect waves-light blue lighten-1' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></a>
           </div>
         </div>
-      )
-    }
-
-    return null
+      </div>
+    )
   }
 }
 

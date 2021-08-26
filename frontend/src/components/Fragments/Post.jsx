@@ -23,7 +23,7 @@ class Post extends Component {
             author: this.props.author,
             logged: this.props.logged
           }}
-          style={{ all: 'unset' }}>
+          style={{ all: 'unset' }} >
           <div className='card-panel hoverable'>
             <div className='card-content'>
               <h4 className='card-title'>{ title }</h4>

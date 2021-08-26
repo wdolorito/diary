@@ -12,7 +12,6 @@ import Error from './components/views/Error'
 import Login from './components/views/Login'
 import Display from './components/views/Display'
 import PostEditor from './components/views/PostEditor'
-import PostUpdater from './components/views/PostUpdater'
 
 class App extends Component {
   constructor(props) {
@@ -52,11 +51,13 @@ class App extends Component {
   }
 
   setLinks = () => {
-    this.setState({ loginLink: this.state.baseLink + this.state.loginLink,
+    this.setState({
+                    loginLink: this.state.baseLink + this.state.loginLink,
                     logoutLink: this.state.baseLink + this.state.logoutLink,
                     refreshLink: this.state.baseLink + this.state.refreshLink,
                     postsLink: this.state.baseLink + this.state.postsLink,
-                    postLink: this.state.baseLink + this.state.postLink })
+                    postLink: this.state.baseLink + this.state.postLink
+                  })
   }
 
   setJwt = (newjwt) => {
@@ -64,8 +65,10 @@ class App extends Component {
   }
 
   resetJwt = () => {
-    this.setState({ jwt: '',
-                    logged: false })
+    this.setState({
+                    jwt: '',
+                    logged: false
+                  })
   }
 
   storeToken = (token) => {
@@ -170,8 +173,10 @@ class App extends Component {
       .then(
         (res) => {
           if(res.status === 200) {
-            this.setState({ posts: res.data })
-            this.setState({ received: true })
+            this.setState({
+                            posts: res.data,
+                            received: true
+                          })
           }
         },
         (err) => {
@@ -239,13 +244,9 @@ class App extends Component {
               component={ About }
             />
             <Route
-              path='/post'
-              component={ Display }
-            />
-            <Route
               exact path='/editor'
               render={ (props) =>
-                <PostUpdater
+                <PostEditor
                   { ...props }
                   key='editorDisplay'
                   logged={ this.state.logged }
@@ -253,12 +254,11 @@ class App extends Component {
                 /> }
             />
             <Route
-              exact path='/update'
+              path='/post'
               render={ (props) =>
-                <PostEditor
+                <Display
                   { ...props }
-                  key='updatePostDisplay'
-                  logged={ this.state.logged }
+                  key='postDisplay'
                   callPost={ this.callPost }
                 /> }
             />
@@ -270,6 +270,16 @@ class App extends Component {
                   key='loginDisplay'
                   logged={ this.state.logged }
                   doLogin={ this.doLogin }
+                /> }
+            />
+            <Route
+              exact path='/update'
+              render={ (props) =>
+                <PostEditor
+                  { ...props }
+                  key='updatePostDisplay'
+                  logged={ this.state.logged }
+                  callPost={ this.callPost }
                 /> }
             />
             <Route
