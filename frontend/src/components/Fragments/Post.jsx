@@ -18,7 +18,7 @@ class Post extends Component {
         <Link
           to={{
             pathname: '/post',
-            search: friendlyURL,
+            search: 'title=' + friendlyURL,
             post: this.props.post,
             author: this.props.author,
             logged: this.props.logged

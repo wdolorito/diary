@@ -76,7 +76,7 @@ class PostEditor extends Component {
       } else {
         payload.summary = body.replace(/<[^>]+>/g, '')
       }
-      if(this.props.location) {
+      if(this.props.location.post !== undefined) {
         this.props.callPost('put', payload, this.props.location.post._id)
       } else {
         this.props.callPost('post', payload)
@@ -166,7 +166,7 @@ class PostEditor extends Component {
 
         <div className='row'>
           <div className='col s12 right-align'>
-            <a className='btn waves-effect waves-light blue lighten-1' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></a>
+            <span className='btn waves-effect waves-light blue lighten-1' onClick={ this.submitForm } name='action'>submit<i className='material-icons right'>send</i></span>
           </div>
         </div>
       </div>

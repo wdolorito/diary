@@ -79,7 +79,7 @@ class Login extends Component {
             <div className='row'>
               <div className='col s3' />
               <div className='col s6'>
-                <a className='btn waves-effect waves-light' type='submit' name='action'>submit<i className='material-icons right'>send</i></a>
+                <button className='btn waves-effect waves-light' type='submit' name='action'>submit<i className='material-icons right'>send</i></button>
               </div>
               <div className='col s3' />
             </div>

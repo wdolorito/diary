@@ -254,7 +254,7 @@ class App extends Component {
                 /> }
             />
             <Route
-              path='/post'
+              exact path='/post'
               render={ (props) =>
                 <Display
                   { ...props }
