@@ -9,7 +9,8 @@ class Display extends Component {
 
     this.state = {
       passed: true,
-      qs: ''
+      qs: '',
+      ready: false
     }
   }
 
@@ -20,13 +21,16 @@ class Display extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.passed) {
+    if(!this.state.passed && !this.props.lookUpReceived) {
       this.setState({ passed: true })
       const qs = queryString.parse(this.props.location.search)
       this.setState({ qs })
+      this.getPostByTitle(qs.title)
     }
 
-    // if(this.state.qs) console.log(this.state.qs)
+    if(!this.state.ready && this.props.lookUp !== undefined && this.props.lookUpReceived) {
+      this.setState({ ready: true })
+    }
   }
 
   handleDelete = () => {
@@ -35,110 +39,104 @@ class Display extends Component {
     window.location = '/'
   }
 
+  getPostByTitle = (title) => {
+    const post = this.props.callPost('get', null, title)
+  }
+
   render() {
+    let author, post
     if(this.props.location.post) {
-      const { title,
-              summary,
-              body,
-              createdAt,
-              updatedAt } = this.props.location.post
-      const dispCreatedAt = new Date(createdAt).toUTCString()
-      const dispUpdatedAt = new Date(updatedAt).toUTCString()
+      author = this.props.location.author
+      post = this.props.location.post
+    } else if(this.state.ready) {
+        author = this.props.lookUp[0]
+        post = this.props.lookUp[1]
+    } else {
+      return null
+    }
 
-      const { avatar,
-              firstName,
-              middleName,
-              lastName,
-              handle } = this.props.location.author
+    const { title,
+            summary,
+            body,
+            createdAt,
+            updatedAt } = post
+    const dispCreatedAt = new Date(createdAt).toUTCString()
+    const dispUpdatedAt = new Date(updatedAt).toUTCString()
 
-      const styleFix = {
-        wordBreak: 'break-word'
-      }
+    const { avatar,
+            firstName,
+            middleName,
+            lastName,
+            handle } = author
+    const blockQuote1 = {
+      borderColor: '#1976d2'
+    }
 
-      const blockQuote1 = {
-        borderColor: '#1976d2'
-      }
-
-      return (
-        <div className='container full-post'>
-          <h2>{ title }</h2>
-          <blockquote style={ blockQuote1 }><h6><em>{ summary }</em></h6></blockquote>
-          <div className='row'>
-            <div className='valign-wrapper'>
-              <div className='col s1' />
-              <div className='col s6'>
-                <h5>by { firstName } { middleName } { lastName }</h5>
-              </div>
-              <div className='col s5'>
-                <Avatar
-                  key={ handle }
-                  avatar={ avatar }
-                  handle={ handle }
-                />
-              </div>
+    return (
+      <div className='container full-post'>
+        <h2 >{ title }</h2>
+        <blockquote style={ blockQuote1 }><h6><em>{ summary }</em></h6></blockquote>
+        <div className='row'>
+          <div className='valign-wrapper'>
+            <div className='col s1' />
+            <div className='col s6'>
+              <h5>by { firstName } { middleName } { lastName }</h5>
+            </div>
+            <div className='col s5'>
+              <Avatar
+                key={ handle }
+                avatar={ avatar }
+                handle={ handle }
+              />
             </div>
           </div>
+        </div>
 
-          <blockquote>
+        <blockquote>
+          <div className='row'>
+            <div className='col s2 right-align'>
+              created:
+            </div>
+            <div className='col s10'>
+              { dispCreatedAt }
+            </div>
+          </div>
+          { (updatedAt !== createdAt ) &&
             <div className='row'>
               <div className='col s2 right-align'>
-                created:
+                updated:
               </div>
               <div className='col s10'>
-                { dispCreatedAt }
-              </div>
-            </div>
-            { (updatedAt !== createdAt ) &&
-              <div className='row'>
-                <div className='col s2 right-align'>
-                  updated:
-                </div>
-                <div className='col s10'>
-                  { dispUpdatedAt }
-                </div>
-              </div>
-            }
-          </blockquote>
-          <div style={ styleFix } dangerouslySetInnerHTML={{ __html: body }} />
-
-          { (this.props.location.logged) &&
-            <div className='row'>
-              <div className='col s6'>
-                <div className='center-align'>
-                  <Link
-                    to={{
-                      pathname: '/update',
-                      post: this.props.location.post
-                    }}
-                    style={{ all: 'unset' }} >
-                    <span className='btn waves-effect waves-light green lighten-1'>edit<i className='material-icons right'>edit</i></span>
-                  </Link>
-                </div>
-              </div>
-              <div className='col s6'>
-                <div className='center-align'>
-                  <span className='btn waves-effect waves-light red lighten-1' onClick={ this.handleDelete }>delete<i className='material-icons right'>delete</i></span>
-                </div>
+                { dispUpdatedAt }
               </div>
             </div>
           }
-        </div>
-      )
-    } else {
-      if(this.state.qs) {
-        const title = this.state.qs.title
-        console.log(this.state.qs.title)
+        </blockquote>
+        <div dangerouslySetInnerHTML={{ __html: body }} />
 
-        return(
-          <h1>{ title }</h1>
-        )
-      }
-
-      // this.props.history.push('/')
-      // this.props.history.go()
-    }
-
-    return null
+        { (this.props.location.logged) &&
+          <div className='row'>
+            <div className='col s6'>
+              <div className='center-align'>
+                <Link
+                  to={{
+                    pathname: '/update',
+                    post: this.props.location.post
+                  }}
+                  style={{ all: 'unset' }} >
+                  <span className='btn waves-effect waves-light green lighten-1'>edit<i className='material-icons right'>edit</i></span>
+                </Link>
+              </div>
+            </div>
+            <div className='col s6'>
+              <div className='center-align'>
+                <span className='btn waves-effect waves-light red lighten-1' onClick={ this.handleDelete }>delete<i className='material-icons right'>delete</i></span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    )
   }
 }
 

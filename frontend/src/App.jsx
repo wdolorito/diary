@@ -30,6 +30,8 @@ class App extends Component {
       inRefresh: false,
       received: false,
       posts: [],
+      lookUp: null,
+      lookUpReceived: false,
       jwt: '',
       logged: false
     }
@@ -202,7 +204,10 @@ class App extends Component {
       axios(options)
         .then(
           (res) => {
-            this.setState({ received: false }, this.getPosts())
+            this.setState({
+                            received: false,
+                            lookUp: res.data,
+                            lookUpReceived: true }, this.getPosts())
           },
           (err) => {
             console.log(this.state.postLink)
@@ -260,6 +265,8 @@ class App extends Component {
                   { ...props }
                   key='postDisplay'
                   callPost={ this.callPost }
+                  lookUp={ this.state.lookUp }
+                  lookUpReceived={ this.state.lookUpReceived }
                 /> }
             />
             <Route

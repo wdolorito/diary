@@ -62,7 +62,10 @@ module.exports = server => {
       summary = body.substring(0, 140).trim()
     }
 
-    if(summary.length >= 139) summary = summary + ' ...'
+    if(summary.length >= 139) {
+      summary = summary.substring(0, 139).trim()
+      summary += ' ...'
+    }
 
     let author
 
@@ -114,7 +117,7 @@ module.exports = server => {
     }
   })
 
-  server.get('/post/:id', async (req, res, next) => {
+  server.get('/post/:title', async (req, res, next) => {
     const tosend = []
     try {
       const author = await getAuthor()
@@ -123,15 +126,15 @@ module.exports = server => {
       return next(new errors.InvalidContentError(err))
     }
 
-    const id = req.params.id || null
+    const friendlyURL = req.params.title || null
 
-    if(id !== null) {
+    if(friendlyURL !== null) {
       try {
-        tosend.push(await Post.findOne({ _id: req.params.id }).select('-__v').select('-owner'))
+        tosend.push(await Post.findOne({ friendlyURL }).select('-__v').select('-owner'))
         res.send(tosend)
         next()
       } catch(err) {
-        return next(new errors.ResourceNotFoundError('Post ' + id + ' not found'))
+        return next(new errors.ResourceNotFoundError( title + ' not found'))
       }
     }
 

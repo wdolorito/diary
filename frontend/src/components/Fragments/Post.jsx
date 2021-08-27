@@ -24,7 +24,7 @@ class Post extends Component {
             <div className='card-content'>
               <h4 className='card-title'>{ title }</h4>
               <em>{ dispCreatedAt }</em>
-              <p className='truncate flow-text'>{ summary }</p>
+              <p className='flow-text'>{ summary }</p>
             </div>
           </div>
         </Link>

@@ -11,3 +11,7 @@
 body .full-post {
   margin-bottom: 40px;
 }
+
+body {
+  word-break: break-word;
+}
