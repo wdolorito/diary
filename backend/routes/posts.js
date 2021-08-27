@@ -25,6 +25,16 @@ const getAuthorForPost = () => {
   })
 }
 
+const createFriendlyURL = (title) => {
+  const friendlyURL = title.replace(/\s+/g, '-')
+                           .replace(/"/g, '')
+                           .replace(/'/g, '')
+                           .replace(/,/g, '')
+                           .toLowerCase()
+
+   return friendlyURL
+}
+
 module.exports = server => {
   Post.init()
 
@@ -46,6 +56,8 @@ module.exports = server => {
     const { title, body } = req.body
     let { summary } = req.body
 
+    const friendlyURL = createFriendlyURL(title)
+
     if(summary === undefined) {
       summary = body.substring(0, 140).trim()
     }
@@ -63,6 +75,7 @@ module.exports = server => {
     const post = new Post({
       owner: author[0]._id,
       title,
+      friendlyURL,
       summary,
       body
     })
@@ -146,7 +159,11 @@ module.exports = server => {
 
       const set = {}
 
-      if(title) set.title = title
+      if(title) {
+        set.title = title
+        set.friendlyURL = createFriendlyURL(title)
+      }
+
       if(body) set.body = body
 
       if(body !== undefined && summary === undefined) summary = body.substring(0, 140).trim()

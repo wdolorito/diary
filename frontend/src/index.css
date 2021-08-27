@@ -2,8 +2,6 @@
   height: 25px;
   margin-left: 20px;
   margin-right: 20px;
-  -webkit-filter: invert(100%);
-  filter: invert(100%);
 }
 
 #avatar {
