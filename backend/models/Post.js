@@ -19,6 +19,12 @@ const PostSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  titleHash: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
   summary: {
     type: String,
     required: true,

@@ -246,7 +246,13 @@ class App extends Component {
             />
             <Route
               exact path='/about'
-              component={ About }
+              render={ (props) =>
+                <About
+                  { ...props }
+                  key='aboutDisplay'
+                  logged={ this.state.logged }
+                  callPost={ this.callPost }
+                /> }
             />
             <Route
               exact path='/editor'

@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Avatar from '../Fragments/Avatar'
+import crypto from 'crypto'
 import queryString from 'query-string'
 
 class Display extends Component {
@@ -25,7 +26,7 @@ class Display extends Component {
       this.setState({ passed: true })
       const qs = queryString.parse(this.props.location.search)
       this.setState({ qs })
-      this.getPostByTitle(qs.title)
+      this.getPostByHash(qs.title)
     }
 
     if(!this.state.ready && this.props.lookUp !== undefined && this.props.lookUpReceived) {
@@ -39,8 +40,13 @@ class Display extends Component {
     window.location = '/'
   }
 
-  getPostByTitle = (title) => {
-    const post = this.props.callPost('get', null, title)
+  getPostByHash = (title) => {
+    const hash = this.getTitleHash(title)
+    this.props.callPost('get', null, hash)
+  }
+
+  getTitleHash = (title) => {
+    return crypto.createHash('sha1').update(title).digest('hex')
   }
 
   render() {
@@ -73,7 +79,7 @@ class Display extends Component {
     }
 
     return (
-      <div className='container full-post'>
+      <div className='container'>
         <h2 >{ title }</h2>
         <blockquote style={ blockQuote1 }><h6><em>{ summary }</em></h6></blockquote>
         <div className='row'>

@@ -1,15 +1,11 @@
 .nav-wrapper img {
   height: 25px;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
 }
 
 #avatar {
   height: 60px;
-}
-
-body .full-post {
-  margin-bottom: 40px;
 }
 
 body {

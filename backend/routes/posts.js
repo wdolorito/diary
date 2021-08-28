@@ -1,5 +1,6 @@
 const errors = require('restify-errors')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const Owner = require('../models/Owner')
 const Post = require('../models/Post')
 const bauth = require('../utility/bauth')
@@ -26,13 +27,15 @@ const getAuthorForPost = () => {
 }
 
 const createFriendlyURL = (title) => {
-  const friendlyURL = title.replace(/\s+/g, '-')
-                           .replace(/"/g, '')
-                           .replace(/'/g, '')
-                           .replace(/,/g, '')
-                           .toLowerCase()
+  const friendlyURL = title.toLowerCase()
+                           .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
+                           .replace(/\s+/g, '-')
 
    return friendlyURL
+}
+
+const createTitleHash = (title) => {
+  return crypto.createHash('sha1').update(title).digest('hex')
 }
 
 module.exports = server => {
@@ -57,6 +60,7 @@ module.exports = server => {
     let { summary } = req.body
 
     const friendlyURL = createFriendlyURL(title)
+    const titleHash = createTitleHash(friendlyURL)
 
     if(summary === undefined) {
       summary = body.substring(0, 140).trim()
@@ -79,6 +83,7 @@ module.exports = server => {
       owner: author[0]._id,
       title,
       friendlyURL,
+      titleHash,
       summary,
       body
     })
@@ -117,7 +122,7 @@ module.exports = server => {
     }
   })
 
-  server.get('/post/:title', async (req, res, next) => {
+  server.get('/post/:hash', async (req, res, next) => {
     const tosend = []
     try {
       const author = await getAuthor()
@@ -126,19 +131,19 @@ module.exports = server => {
       return next(new errors.InvalidContentError(err))
     }
 
-    const friendlyURL = req.params.title || null
+    const titleHash = req.params.hash || null
 
-    if(friendlyURL !== null) {
+    if(titleHash !== null) {
       try {
-        tosend.push(await Post.findOne({ friendlyURL }).select('-__v').select('-owner'))
+        tosend.push(await Post.findOne({ titleHash }).select('-__v').select('-owner'))
         res.send(tosend)
         next()
       } catch(err) {
-        return next(new errors.ResourceNotFoundError( title + ' not found'))
+        return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
       }
     }
 
-    return next(new errors.ResourceNotFoundError('Need Post ID'))
+    return next(new errors.ResourceNotFoundError('Need Post hash'))
   })
 
   server.put('/post/:id', async (req, res, next) => { // 200 req
@@ -165,6 +170,7 @@ module.exports = server => {
       if(title) {
         set.title = title
         set.friendlyURL = createFriendlyURL(title)
+        set.titleHash = createTitleHash(set.friendlyURL)
       }
 
       if(body) set.body = body

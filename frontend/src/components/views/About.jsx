@@ -1,9 +1,27 @@
 import { Component } from 'react'
 
 class About extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+    }
+  }
+
+  componentDidMount() {
+  }
+
+  componentDidUpdate() {
+  }
+
+  componentWillUnmount() {
+  }
+
   render() {
     return (
-      <div>This is the about page.</div>
+      <div className='container'>
+        This is the about page.
+      </div>
     )
   }
 }
