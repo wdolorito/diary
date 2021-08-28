@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Avatar from '../Fragments/Avatar'
+import Error from './Error'
 import crypto from 'crypto'
 import queryString from 'query-string'
 
@@ -54,9 +55,11 @@ class Display extends Component {
     if(this.props.location.post) {
       author = this.props.location.author
       post = this.props.location.post
-    } else if(this.state.ready) {
-        author = this.props.lookUp[0]
-        post = this.props.lookUp[1]
+    } else if(this.state.ready && this.props.lookUp[1]) {
+      author = this.props.lookUp[0]
+      post = this.props.lookUp[1]
+    } else if(this.state.ready && !this.props.lookUp[1]) {
+      return <Error />
     } else {
       return null
     }
