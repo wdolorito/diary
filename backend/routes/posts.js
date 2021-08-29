@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const Owner = require('../models/Owner')
 const Post = require('../models/Post')
+const Static = require('../models/Static')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
 
@@ -40,6 +41,7 @@ const createTitleHash = (title) => {
 
 module.exports = server => {
   Post.init()
+  Static.init()
 
   // CRUD operations -> post get put del
   server.post('/post', async (req, res, next) => {
@@ -123,23 +125,36 @@ module.exports = server => {
   })
 
   server.get('/post/:hash', async (req, res, next) => {
-    const tosend = []
-    try {
-      const author = await getAuthor()
-      tosend.push(author[0])
-    } catch(err) {
-      return next(new errors.InvalidContentError(err))
-    }
-
     const titleHash = req.params.hash || null
 
-    if(titleHash !== null) {
+    if(titleHash !== null && titleHash !== 'static') {
+      const tosend = []
+      try {
+        const author = await getAuthor()
+        tosend.push(author[0])
+      } catch(err) {
+        return next(new errors.InvalidContentError(err))
+      }
+
       try {
         tosend.push(await Post.findOne({ titleHash }).select('-__v').select('-owner'))
         res.send(tosend)
         next()
       } catch(err) {
         return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
+      }
+    } else {
+      if(!req.is('application/json')) {
+        return next(new errors.InvalidContentError('Data not sent correctly'))
+      }
+
+      const { section } = req.body
+      try {
+        const page = await Static.findOne({ section }).select('-__v')
+        res.send(page)
+        next()
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
       }
     }
 
