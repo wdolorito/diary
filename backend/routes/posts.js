@@ -58,44 +58,61 @@ module.exports = server => {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
 
-    const { title, body } = req.body
+    const { section, title, body } = req.body
     let { summary } = req.body
 
-    const friendlyURL = createFriendlyURL(title)
-    const titleHash = createTitleHash(friendlyURL)
+    if(title) {
+      const friendlyURL = createFriendlyURL(title)
+      const titleHash = createTitleHash(friendlyURL)
 
-    if(summary === undefined) {
-      summary = body.substring(0, 140).trim()
+      if(summary === undefined) {
+        summary = body.substring(0, 140).trim()
+      }
+
+      if(summary.length >= 139) {
+        summary = summary.substring(0, 139).trim()
+        summary += ' ...'
+      }
+
+      let author
+
+      try {
+        author = await getAuthorForPost()
+      } catch(err) {
+        return next(new errors.InternalError('db error'))
+      }
+
+      const post = new Post({
+        owner: author[0]._id,
+        title,
+        friendlyURL,
+        titleHash,
+        summary,
+        body
+      })
+
+      try {
+        await post.save()
+        res.send(201, 'saved post')
+        next()
+      } catch(err) {
+        return next(new errors.InternalError('unable to post'))
+      }
     }
 
-    if(summary.length >= 139) {
-      summary = summary.substring(0, 139).trim()
-      summary += ' ...'
-    }
+    if(section) {
+      const static = new Static({
+        section,
+        body
+      })
 
-    let author
-
-    try {
-      author = await getAuthorForPost()
-    } catch(err) {
-      return next(new errors.InternalError('db error'))
-    }
-
-    const post = new Post({
-      owner: author[0]._id,
-      title,
-      friendlyURL,
-      titleHash,
-      summary,
-      body
-    })
-
-    try {
-      await post.save()
-      res.send(201, 'saved post')
-      next()
-    } catch(err) {
-      return next(new errors.InternalError('unable to post'))
+      try {
+        await static.save()
+        res.send(201, section + ' saved')
+        next()
+      } catch(err) {
+        return next(new errors.InternalError('unable to post'))
+      }
     }
 
     return next(new errors.InternalError('unable to post'))
@@ -117,11 +134,13 @@ module.exports = server => {
         tosend.push(posts[count])
       }
 
-      res.send(tosend)
+      res.send(200, tosend)
       next()
     } catch(err) {
       return next(new errors.InvalidContentError(err))
     }
+
+    return next(new errors.ResourceNotFoundError('unable to retrieve results'))
   })
 
   server.get('/post/:hash', async (req, res, next) => {
@@ -138,20 +157,16 @@ module.exports = server => {
 
       try {
         tosend.push(await Post.findOne({ titleHash }).select('-__v').select('-owner'))
-        res.send(tosend)
+        res.send(200, tosend)
         next()
       } catch(err) {
         return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
       }
-    } else {
-      if(!req.is('application/json')) {
-        return next(new errors.InvalidContentError('Data not sent correctly'))
-      }
-
-      const { section } = req.body
+    } else if(titleHash === 'static') {
+      const section = req.getQuery()
       try {
         const page = await Static.findOne({ section }).select('-__v')
-        res.send(page)
+        res.send(200, page)
         next()
       } catch(err) {
         return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))

@@ -20,7 +20,7 @@ module.exports = server => {
         docs += '     {'
         docs += '        "route": "/post/:hash",'
         docs += '        "type": "get",'
-        docs += '        "description": "Get Post by hash",'
+        docs += '        "description": "Get Post/section by hash/?name",'
         docs += '        "response": "200/JSON"'
         docs += '     },'
         docs += '     {'
