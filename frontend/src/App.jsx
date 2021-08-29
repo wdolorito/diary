@@ -12,6 +12,7 @@ import Error from './components/views/Error'
 import Login from './components/views/Login'
 import Display from './components/views/Display'
 import PostEditor from './components/views/PostEditor'
+import SectionEditor from './components/views/SectionEditor'
 
 class App extends Component {
   constructor(props) {
@@ -32,6 +33,8 @@ class App extends Component {
       posts: [],
       lookUp: null,
       lookUpReceived: false,
+      about: null,
+      aboutReceived: false,
       jwt: '',
       logged: false
     }
@@ -90,9 +93,11 @@ class App extends Component {
   }
 
   doLogin = (log, pass) => {
+    const loginLink = this.state.loginLink
+    if(loginLink.length > 5) {
       axios({
         method: 'post',
-        url: this.state.loginLink,
+        url: loginLink,
         cancelToken: new CancelToken(c => this.cancel = c),
         data: {
           email: log,
@@ -113,63 +118,87 @@ class App extends Component {
           this.resetJwt()
         }
       )
+    } else {
+      setTimeout(() => {
+        if(this.cancel !== null) this.cancel()
+        this.doLogin(log, pass)
+      }, 100)
+    }
   }
 
   doRefresh = () => {
     this.setState({ inRefresh: true }, () => {
         const token = this.getToken()
         if(token) {
-          axios({
-            method: 'post',
-            url: this.state.refreshLink,
-            cancelToken: new CancelToken(c => this.cancel = c),
-            data: { token }
-          })
-          .then(
-            (res) => {
-              if(res.status === 200) {
-                this.setJwt(res.data.token)
-                this.setLogged()
-                this.storeToken(res.data.refresh)
-                this.setState({ refreshed: true })
-              }
-            },
-            (err) => {
-              this.resetJwt()
-              this.resetToken()
-            }
-          )
+          this.refreshAxios(token)
         }
       }
     )
   }
 
-  doLogout = () => {
-    const token = this.getToken()
-    if(token) {
+  refreshAxios = (token) => {
+    const refreshLink = this.state.refreshLink
+    if(refreshLink.length > 7) {
       axios({
         method: 'post',
-        url: this.state.logoutLink,
+        url: refreshLink,
         cancelToken: new CancelToken(c => this.cancel = c),
-        headers: {
-          'Authorization': 'Bearer ' + this.state.jwt
-        },
         data: { token }
       })
-      .then((res, err) => {
-        this.resetJwt()
-        this.resetToken()
-        this.setState({ received: false }, this.getPosts())
+      .then(
+        (res) => {
+          if(res.status === 200) {
+            this.setJwt(res.data.token)
+            this.setLogged()
+            this.storeToken(res.data.refresh)
+            this.setState({ refreshed: true })
+          }
+        },
+        (err) => {
+          this.resetJwt()
+          this.resetToken()
+        }
+      )
+    } else {
+      setTimeout(() => {
+        if(this.cancel !== null) this.cancel()
+        this.refreshAxios(token)
       })
     }
   }
 
+  doLogout = () => {
+    const logoutLink = this.state.logoutLink
+    if(logoutLink.length > 6) {
+      const token = this.getToken()
+      if(token) {
+        axios({
+          method: 'post',
+          url: logoutLink,
+          cancelToken: new CancelToken(c => this.cancel = c),
+          headers: {
+            'Authorization': 'Bearer ' + this.state.jwt
+          },
+          data: { token }
+        })
+        .then((res, err) => {
+          this.resetJwt()
+          this.resetToken()
+          this.setState({ received: false }, this.getPosts())
+        })
+      }
+    } else {
+      if(this.cancel !== null) this.cancel()
+      this.doLogout()
+    }
+  }
+
   getPosts = () => {
-    const pLL = this.state.postsLink.length
-    if(pLL > 5) {
+    const postsLink = this.state.postsLink
+    if(postsLink.length > 5) {
       axios({
         method: 'get',
-        url: this.state.postsLink,
+        url: postsLink,
         cancelToken: new CancelToken(c => this.cancel = c)
       })
       .then(
@@ -186,13 +215,18 @@ class App extends Component {
           console.log(err.response)
         }
       )
+    } else {
+      setTimeout(() => {
+        if(this.cancel !== null) this.cancel()
+        this.getPosts()
+      }, 100)
     }
   }
 
   callPost = (type, payload, id) => {
-    const pLL = this.state.postLink.length
-    if(pLL > 4) {
-      let link = this.state.postLink
+    const postLink = this.state.postLink
+    if(postLink.length > 4) {
+      let link = postLink
       if(id) link += '/' + id
       const options = {}
       options.method = type
@@ -204,16 +238,29 @@ class App extends Component {
       axios(options)
         .then(
           (res) => {
-            this.setState({
-                            received: false,
-                            lookUp: res.data,
-                            lookUpReceived: true }, this.getPosts())
+            const isStatic = id.substring(0, 6)
+            if(isStatic === 'static') {
+              this.setState({
+                            about: res.data,
+                            aboutReceived: true
+                           })
+            } else {
+              this.setState({
+                              received: false,
+                              lookUp: res.data,
+                              lookUpReceived: true }, this.getPosts())
+            }
           },
           (err) => {
             console.log(this.state.postLink)
             console.log(err)
           }
         )
+    } else {
+      setTimeout(() => {
+        if(this.cancel !== null) this.cancel()
+        this.callPost(type, payload, id)
+      }, 100)
     }
   }
 
@@ -252,6 +299,8 @@ class App extends Component {
                   key='aboutDisplay'
                   logged={ this.state.logged }
                   callPost={ this.callPost }
+                  about={ this.state.about }
+                  aboutReceived={ this.state.aboutReceived }
                 /> }
             />
             <Route
@@ -283,6 +332,16 @@ class App extends Component {
                   key='loginDisplay'
                   logged={ this.state.logged }
                   doLogin={ this.doLogin }
+                /> }
+            />
+            <Route
+              exact path='/section'
+              render={ (props) =>
+                <SectionEditor
+                  { ...props }
+                  key='sectionEditorDisplay'
+                  logged={ this.state.logged }
+                  callPost={ this.callPost }
                 /> }
             />
             <Route

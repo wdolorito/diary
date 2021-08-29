@@ -193,7 +193,7 @@ module.exports = server => {
     const id = req.params.id || null
 
     if(id !== null) {
-      let { title, body, summary } = req.body
+      let { section, title, body, summary } = req.body
 
       const set = {}
 
@@ -201,25 +201,39 @@ module.exports = server => {
         set.title = title
         set.friendlyURL = createFriendlyURL(title)
         set.titleHash = createTitleHash(set.friendlyURL)
+
+        if(body) set.body = body
+
+        if(body !== undefined && summary === undefined) summary = body.substring(0, 140).trim()
+
+        if(summary) {
+          summary = summary.substring(0, 140).trim()
+          if(summary.length >= 139) summary = summary + ' ...'
+          set.summary = summary
+        }
+
+        try {
+          await Post.findOneAndUpdate({ _id: id }, { $set: set })
+          res.send(200, 'updated post')
+          next()
+        } catch(err) {
+          return next(new errors.InternalError('Unable to update Post ' + id))
+        }
       }
 
-      if(body) set.body = body
+      if(section) {
+        set.section = section
+        set.body = body
 
-      if(body !== undefined && summary === undefined) summary = body.substring(0, 140).trim()
-
-      if(summary) {
-        summary = summary.substring(0, 140).trim()
-        if(summary.length >= 139) summary = summary + ' ...'
-        set.summary = summary
+        try {
+          await Static.findOneAndUpdate({ section }, { $set: set })
+          res.send(200, 'updated section')
+          next()
+        } catch(err) {
+          return next(new errors.InternalError('Unable to update Section ' + section))
+        }
       }
 
-      try {
-        await Post.findOneAndUpdate({ _id: id }, { $set: set })
-        res.send(200, 'updated post')
-        next()
-      } catch(err) {
-        return next(new errors.InternalError('Unable to update Post ' + id))
-      }
     }
 
     return next(new errors.ResourceNotFoundError('Need Post ID to update'))
