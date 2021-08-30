@@ -16,8 +16,7 @@ class Post extends Component {
             pathname: '/post',
             search: 'title=' + friendlyURL,
             post: this.props.post,
-            author: this.props.author,
-            logged: this.props.logged
+            author: this.props.author
           }}
           style={{ all: 'unset' }} >
           <div className='card-panel hoverable'>
@@ -30,9 +29,6 @@ class Post extends Component {
         </Link>
       )
     }
-
-    this.props.history.push('/')
-    this.props.history.go()
   }
 }
 

@@ -8,7 +8,7 @@ import Footer from './components/layout/Footer'
 
 import Main from './components/views/Main'
 import About from './components/views/About'
-import Error from './components/views/Error'
+import Error from './components/Fragments/Error'
 import Login from './components/views/Login'
 import Display from './components/views/Display'
 import PostEditor from './components/views/PostEditor'
@@ -46,13 +46,13 @@ class App extends Component {
     this.setLinks()
   }
 
+  componentDidUpdate() {
+    if(!this.state.refreshed && !this.state.inRefresh) this.checkLogStatus()
+  }
+
   componentWillUnmount() {
     if(this.cancel !== null) this.cancel()
     this.setState(this.baseState)
-  }
-
-  componentDidUpdate() {
-    if(!this.state.refreshed && !this.state.inRefresh) this.checkLogStatus()
   }
 
   setLinks = () => {
@@ -76,12 +76,14 @@ class App extends Component {
                   })
   }
 
-  storeToken = (token) => {
-    localStorage.setItem('token', token)
+  getToken = () => {
+    console.log('getting token')
+    return localStorage.getItem('token')
   }
 
-  getToken = () => {
-    return localStorage.getItem('token')
+  storeToken = (token) => {
+    console.log('storing: ', token)
+    localStorage.setItem('token', token)
   }
 
   resetToken = () => {
@@ -131,6 +133,8 @@ class App extends Component {
         const token = this.getToken()
         if(token) {
           this.refreshAxios(token)
+        } else {
+          setTimeout(this.refreshAxios(token), 100)
         }
       }
     )
@@ -155,6 +159,8 @@ class App extends Component {
           }
         },
         (err) => {
+          console.log('there was an error in refresh')
+          console.log(err)
           this.resetJwt()
           this.resetToken()
         }
@@ -251,6 +257,8 @@ class App extends Component {
                               lookUp: res.data,
                               lookUpReceived: true }, this.getPosts())
               }
+            } else {
+              this.getPosts()
             }
           },
           (err) => {
@@ -321,6 +329,7 @@ class App extends Component {
                 <Display
                   { ...props }
                   key='postDisplay'
+                  logged={ this.state.logged }
                   callPost={ this.callPost }
                   lookUp={ this.state.lookUp }
                   lookUpReceived={ this.state.lookUpReceived }

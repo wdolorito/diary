@@ -15,7 +15,6 @@ class Posts extends Component {
             key={ index }
             post={ post }
             author={ posts[0] }
-            logged={ this.props.logged }
           />
         ))
       }

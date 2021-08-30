@@ -3,15 +3,23 @@ import Posts from '../Fragments/Posts'
 
 class Main extends Component {
   componentDidMount() {
-    if(!this.props.received) {
-      this.props.getPosts()
-    }
-  }
-
-  componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('main mounted ' + time)
+    this.doStartup()
   }
 
   componentDidUpdate() {
+    const time = new Date().getTime()
+    console.log('main updated ' + time)
+    this.doStartup()
+  }
+
+  componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('main unmounted ' + time)
+  }
+
+  doStartup = () => {
     if(!this.props.received) {
       this.props.getPosts()
     }
@@ -22,7 +30,6 @@ class Main extends Component {
       return (
         <Posts
           key='allPostsShort'
-          logged={ this.props.logged }
           posts={ this.props.posts }
         />
       )

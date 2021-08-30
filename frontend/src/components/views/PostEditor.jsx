@@ -18,23 +18,29 @@ class PostEditor extends Component {
   }
 
   componentDidMount() {
+    const time = new Date().getTime()
+    console.log('post editor mounted ' + time)
     console.log(ClassicEditor.builtinPlugins.map( plugin => plugin.pluginName ))
     if(!this.props.logged) {
       window.location = '/'
     }
   }
 
-  componentWillUnmount() {
-    this.resetForm()
-  }
-
   componentDidUpdate() {
+    const time = new Date().getTime()
+    console.log('post editor updated ' + time)
     if(this.props.location.post) {
       if(this.state.ready) {
         this.setState({ ready: false })
         this.updateEditor()
       }
     }
+  }
+
+  componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('post editor unmounted ' + time)
+    this.resetForm()
   }
 
   setEditor = (editor) => {

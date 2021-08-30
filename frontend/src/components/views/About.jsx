@@ -8,18 +8,28 @@ class About extends Component {
     this.state = {
       updated: false
     }
+
+    this.baseState = this.state
   }
   componentDidMount() {
     const time = new Date().getTime()
     console.log('about mounted ' + time)
-    if(!this.state.updated) {
-      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
-    }
+    this.doStartup()
   }
 
   componentDidUpdate() {
     const time = new Date().getTime()
     console.log('about updated ' + time)
+    this.doStartup()
+  }
+
+  componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('about unmounted ' + time)
+    this.setState(this.baseState)
+  }
+
+  doStartup = () => {
     if(!this.state.updated) {
       this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
     }
@@ -30,7 +40,9 @@ class About extends Component {
       const { body } = this.props.about
       return(
         <div className='container'>
-          <div dangerouslySetInnerHTML={{ __html: body }} />
+          <div className='row'>
+            <div dangerouslySetInnerHTML={{ __html: body }} />
+          </div>
 
           { (this.props.logged) &&
             <div className='center-align row'>

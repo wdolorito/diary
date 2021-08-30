@@ -12,13 +12,22 @@ class Login extends Component {
     this.baseState = this.state
   }
 
+  componentDidMount() {
+    const time = new Date().getTime()
+    console.log('login mounted ' + time)
+  }
+
   componentDidUpdate() {
+    const time = new Date().getTime()
+    console.log('login updated ' + time)
     if(this.props.logged) {
       this.props.history.push('/')
     }
   }
 
   componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('login unmounted ' + time)
     this.resetForm()
   }
 

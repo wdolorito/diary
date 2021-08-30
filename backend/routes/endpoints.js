@@ -46,6 +46,12 @@ module.exports = server => {
         docs += '        "type": "post",'
         docs += '        "description": "Log out User",'
         docs += '        "response": "200"'
+        docs += '     },'
+        docs += '     {'
+        docs += '        "route": "/refresh",'
+        docs += '        "type": "post",'
+        docs += '        "description": "Receive new jwt",'
+        docs += '        "response": "200"'
         docs += '     }'
         docs += ']}'
 

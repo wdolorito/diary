@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../../logo.png'
 
 class Header extends Component {
-  componentDidUpdate() {
+  componentDidMount() {
     if(window.$('.button-collapse').length > 0) {
       this.initNav()
     } else {

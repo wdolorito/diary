@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Avatar from '../Fragments/Avatar'
-import Error from './Error'
+import Error from '../Fragments/Error'
 import crypto from 'crypto'
 import queryString from 'query-string'
 
@@ -14,15 +14,21 @@ class Display extends Component {
       qs: '',
       ready: false
     }
+
+    this.baseState = this.state
   }
 
   componentDidMount() {
+    const time = new Date().getTime()
+    console.log('display mounted ' + time)
     if(this.props.location.search) {
       this.setState({ passed: false })
     }
   }
 
   componentDidUpdate() {
+    const time = new Date().getTime()
+    console.log('display updated ' + time)
     if(!this.state.passed && !this.props.lookUpReceived) {
       this.setState({ passed: true })
       const qs = queryString.parse(this.props.location.search)
@@ -30,9 +36,15 @@ class Display extends Component {
       this.getPostByHash(qs.title)
     }
 
-    if(!this.state.ready && this.props.lookUp !== undefined && this.props.lookUpReceived) {
+    if(this.props.lookUpReceived && this.props.lookUp !== undefined && !this.state.ready) {
       this.setState({ ready: true })
     }
+  }
+
+  componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('display unmounted ' + time)
+    this.setState(this.baseState)
   }
 
   handleDelete = () => {
@@ -121,9 +133,12 @@ class Display extends Component {
             </div>
           }
         </blockquote>
-        <div dangerouslySetInnerHTML={{ __html: body }} />
 
-        { (this.props.location.logged) &&
+        <div className='row'>
+          <div dangerouslySetInnerHTML={{ __html: body }} />
+        </div>
+
+        { (this.props.logged) &&
           <div className='row'>
             <div className='col s6'>
               <div className='center-align'>
