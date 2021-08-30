@@ -238,17 +238,19 @@ class App extends Component {
       axios(options)
         .then(
           (res) => {
-            const isStatic = id.substring(0, 6)
-            if(isStatic === 'static') {
-              this.setState({
-                            about: res.data,
-                            aboutReceived: true
-                           })
-            } else {
-              this.setState({
+            if(id) {
+              const isStatic = id.substring(0, 6)
+              if(isStatic === 'static') {
+                this.setState({
+                              about: res.data,
+                              aboutReceived: true
+                             })
+              } else {
+                this.setState({
                               received: false,
                               lookUp: res.data,
                               lookUpReceived: true }, this.getPosts())
+              }
             }
           },
           (err) => {

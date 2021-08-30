@@ -3,7 +3,9 @@ const bcrypt = require('bcryptjs')
 const mongoose = require('mongoose')
 const Login = require('../models/Login')
 const Owner = require('../models/Owner')
+const Static = require('../models/Static')
 const impowner = require('./owner')
+const impabout = require('./about')
 
 const saveOwner = (login, owner) => {
   return new Promise( (res, rej) => {
@@ -53,6 +55,19 @@ const saveOwner = (login, owner) => {
   })
 }
 
+const seedSection = async (section, body) => {
+  const static = new Static({
+    section,
+    body
+  })
+
+  try {
+    console.log(await static.save())
+  } catch(err) {
+    console.log(err)
+  }
+}
+
 mongoose.connect(process.env.MONGODB_URI, {
   useCreateIndex: true,
   useNewUrlParser: true,
@@ -61,11 +76,17 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 const doAdd = async () => {
   try {
-    if(await saveOwner(impowner.newowner.login, impowner.newowner.owner)) process.exit()
+    await saveOwner(impowner.newowner.login, impowner.newowner.owner)
   } catch(err) {
-    console.log('something happened in add')
+    console.log('owner wasn\'t saved')
     console.log(err)
-    process.exit()
+  }
+
+  try {
+    await seedSection(impabout.about.section, impabout.about.body)
+  } catch(err) {
+    console.log(impabout.about.section + ' wasn\'t seeded')
+    console.log(err)
   }
 }
 
@@ -75,6 +96,7 @@ mongoose.connection.once('open', async () => {
   } catch(err) {
     console.log('something happened in connection')
     console.log(err)
-    process.exit()
   }
+
+  process.exit()
 })
