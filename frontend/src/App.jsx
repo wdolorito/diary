@@ -47,12 +47,21 @@ class App extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.refreshed && !this.state.inRefresh) this.checkLogStatus()
+    console.log(!this.state.refreshed, !this.state.inRefresh)
+    if(!this.state.refreshed && !this.state.inRefresh) {
+      this.setState({ inRefresh: true }, this.checkLogStatus())
+    }
   }
 
   componentWillUnmount() {
     if(this.cancel !== null) this.cancel()
     this.setState(this.baseState)
+  }
+
+  checkLogStatus = () => {
+    if(this.getToken() !== null) {
+      this.doRefresh()
+    }
   }
 
   setLinks = () => {
@@ -129,48 +138,45 @@ class App extends Component {
   }
 
   doRefresh = () => {
-    this.setState({ inRefresh: true }, () => {
-        const token = this.getToken()
-        if(token) {
-          this.refreshAxios(token)
-        } else {
-          setTimeout(this.refreshAxios(token), 100)
-        }
-      }
-    )
+    const token = this.getToken()
+    if(token) {
+      this.refreshAxios(token)
+    } else {
+      setTimeout(this.refreshAxios(token), 100)
+    }
   }
 
   refreshAxios = (token) => {
-    const refreshLink = this.state.refreshLink
-    if(refreshLink.length > 7) {
-      axios({
-        method: 'post',
-        url: refreshLink,
-        cancelToken: new CancelToken(c => this.cancel = c),
-        data: { token }
-      })
-      .then(
-        (res) => {
-          if(res.status === 200) {
-            this.setJwt(res.data.token)
-            this.setLogged()
-            this.storeToken(res.data.refresh)
-            this.setState({ refreshed: true })
-          }
-        },
-        (err) => {
-          console.log('there was an error in refresh')
-          console.log(err)
-          this.resetJwt()
-          this.resetToken()
-        }
-      )
-    } else {
-      setTimeout(() => {
-        if(this.cancel !== null) this.cancel()
-        this.refreshAxios(token)
-      })
-    }
+    setTimeout(() => {
+      const refreshLink = this.state.refreshLink
+      if(refreshLink.length > 7) {
+        axios({
+          method: 'post',
+          url: refreshLink,
+          cancelToken: new CancelToken(c => this.cancel = c),
+          data: { token }
+        })
+        .then(
+          (res) => {
+            if(res.status === 200) {
+              this.setJwt(res.data.token)
+              this.setLogged()
+              this.storeToken(res.data.refresh)
+              this.setState({ refreshed: true })
+            }
+          },
+          (err) => {
+            console.log(err)
+            this.resetJwt()
+            this.resetToken()          }
+        )
+      } else {
+        setTimeout(() => {
+          if(this.cancel !== null) this.cancel()
+          this.refreshAxios(token)
+        })
+      }
+    }, 100)
   }
 
   doLogout = () => {
@@ -271,12 +277,6 @@ class App extends Component {
         if(this.cancel !== null) this.cancel()
         this.callPost(type, payload, id)
       }, 100)
-    }
-  }
-
-  checkLogStatus = () => {
-    if(this.getToken() !== null) {
-      this.doRefresh()
     }
   }
 
