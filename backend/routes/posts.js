@@ -148,27 +148,44 @@ module.exports = server => {
 
     if(titleHash !== null && titleHash !== 'static') {
       const tosend = []
-      try {
-        const author = await getAuthor()
-        tosend.push(author[0])
-      } catch(err) {
-        return next(new errors.InvalidContentError(err))
-      }
 
+      let post = null
       try {
-        tosend.push(await Post.findOne({ titleHash }).select('-__v').select('-owner'))
-        res.send(200, tosend)
-        next()
+        post = await Post.findOne({ titleHash }).select('-__v').select('-owner')
       } catch(err) {
         return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
       }
+
+      if(post !== null) {
+        tosend.push(post)
+      } else {
+        return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
+      }
+
+      try {
+        const author = await getAuthor()
+        tosend.splice(0, 0, author[0])
+        if(author !== null) {
+          res.send(200, tosend)
+          next()
+        }
+      } catch(err) {
+        return next(new errors.InvalidContentError(err))
+      }
     } else if(titleHash === 'static') {
       const section = req.getQuery()
+
+      let page = null
       try {
-        const page = await Static.findOne({ section }).select('-__v')
+        page = await Static.findOne({ section }).select('-__v')
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
+      }
+
+      if(page !== null) {
         res.send(200, page)
         next()
-      } catch(err) {
+      } else {
         return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
       }
     }
