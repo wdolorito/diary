@@ -172,7 +172,8 @@ class App extends Component {
           (err) => {
             console.log(err)
             this.resetJwt()
-            this.resetToken()          }
+            this.resetToken()
+          }
         )
       } else {
         setTimeout(() => {
