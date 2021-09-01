@@ -1,27 +1,38 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Restify server mongodb",
+  "description": "restify API backend access to mongoDB store",
   "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@bitbucket.org/wdolorito/diary.git"
   },
   "author": "William Dolorito",
   "license": "UNLICENSED",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "dotenv": "^8.1.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.6.11",
-    "mongoose-timestamp": "^0.6.0",
-    "restify": "^8.4.0",
-    "restify-cors-middleware": "^1.1.1",
-    "restify-errors": "^8.0.1",
-    "restify-jwt-community": "^1.1.0",
-    "saslprep": "^1.0.3"
+  "bugs": {
+    "url": "https://bitbucket.org/wdolorito/diary/issues"
   },
+  "homepage": "https://bitbucket.org/wdolorito/diary#readme",
   "devDependencies": {
     "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^10.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.3",
+    "mongoose-timestamp": "^0.6.0",
+    "node-cache": "^5.1.2",
+    "restify": "^8.5.1",
+    "restify-cors-middleware2": "^2.1.2",
+    "restify-errors": "^8.0.2",
+    "restify-jwt-community": "^1.1.16"
   }
 }

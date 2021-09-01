@@ -3,7 +3,7 @@ const port = process.env.PORT || 5000
 const restify = require('restify')
 const mongoose = require('mongoose')
 const rjwt = require('restify-jwt-community')
-const corsMiddleware = require('restify-cors-middleware')
+const corsMiddleware = require('restify-cors-middleware2')
 
 const server = restify.createServer()
 
@@ -27,10 +27,8 @@ server.pre(restify.plugins.pre.dedupeSlashes())
 
 server.listen(port, () => {
   mongoose.connect(process.env.MONGODB_URI, {
-    useCreateIndex: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
+    useUnifiedTopology: true
   })
 })
 
