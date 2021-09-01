@@ -87,7 +87,8 @@ class App extends Component {
 
   getToken = () => {
     console.log('getting token')
-    return localStorage.getItem('token')
+    const token = localStorage.getItem('token')
+    return token
   }
 
   storeToken = (token) => {
@@ -96,6 +97,7 @@ class App extends Component {
   }
 
   resetToken = () => {
+    console.log('removing: ', this.getToken())
     localStorage.removeItem('token')
   }
 
@@ -137,16 +139,14 @@ class App extends Component {
     }
   }
 
-  doRefresh = () => {
+  doRefresh = (params, cb) => {
     const token = this.getToken()
     if(token) {
-      this.refreshAxios(token)
-    } else {
-      setTimeout(this.refreshAxios(token), 100)
+      this.refreshAxios(token, params, cb)
     }
   }
 
-  refreshAxios = (token) => {
+  refreshAxios = (token, params, cb) => {
     setTimeout(() => {
       const refreshLink = this.state.refreshLink
       if(refreshLink.length > 7) {
@@ -163,6 +163,10 @@ class App extends Component {
               this.setLogged()
               this.storeToken(res.data.refresh)
               this.setState({ refreshed: true })
+              if(typeof(cb) === 'function') {
+                const { type, payload, id } = params
+                cb(type, payload, id)
+              }
             }
           },
           (err) => {
@@ -173,7 +177,7 @@ class App extends Component {
       } else {
         setTimeout(() => {
           if(this.cancel !== null) this.cancel()
-          this.refreshAxios(token)
+          this.refreshAxios(token, params, cb)
         })
       }
     }, 100)
@@ -265,6 +269,14 @@ class App extends Component {
               }
             } else {
               this.getPosts()
+            }
+
+            if(res.status === 401) {
+              this.setState({ refreshed: false },
+                () => {
+                  const params = { type, payload, id }
+                  this.doRefresh(params, this.callPost)
+                })
             }
           },
           (err) => {
