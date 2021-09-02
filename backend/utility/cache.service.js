@@ -20,6 +20,7 @@ class Cache {
   }
 
   del(keys) {
+    console.log('cache delete ' + keys)
     this.cache.del(keys)
   }
 

@@ -333,7 +333,17 @@ module.exports = server => {
         }
 
         try {
-          await Post.findOneAndUpdate({ _id: id }, { $set: set })
+          const key = 'getPost_' + titleHash
+          await getCache.del(key, async () => {
+            let result
+            try {
+              result = await Post.findOneAndUpdate({ _id: id }, { $set: set })
+            } catch(err) {
+              console.log(err)
+            }
+            return result
+          }).then((result) => { return result })
+
           res.send(200, 'updated post')
           next()
         } catch(err) {
@@ -346,7 +356,17 @@ module.exports = server => {
         set.body = body
 
         try {
-          await Static.findOneAndUpdate({ section }, { $set: set })
+          const key = 'getStatic_' + section
+          await staticCache.del(key, async () => {
+            let result
+            try {
+              result = await Static.findOneAndUpdate({ section }, { $set: set })
+            } catch(err) {
+              console.log(err)
+            }
+            return result
+          }).then((result) => { return result })
+
           res.send(200, 'updated section')
           next()
         } catch(err) {
@@ -372,7 +392,14 @@ module.exports = server => {
     const id = req.params.id || null
     if(id !== null) {
       try {
-        await Post.deleteOne({ _id: id })
+        const post = await Post.findOneAndDelete({ _id: id })
+        try {
+          const key = 'getPost_' + post.titleHash
+          await getCache.del(key)
+        } catch(err) {
+          return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
+        }
+
         res.send(204, 'deleted post')
         next()
       } catch(err) {
