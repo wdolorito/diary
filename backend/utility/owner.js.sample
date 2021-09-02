@@ -14,7 +14,7 @@ owner = `{
   "firstName": "The",
   "middleName": "Head",
   "lastName": "Honcho",
-  "avatar": "/some/awesome/path/awesome.png"
+  "avatar": "/monkey.png"
 }`
 
 login = JSON.parse(login)

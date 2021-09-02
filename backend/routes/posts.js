@@ -6,6 +6,10 @@ const Post = require('../models/Post')
 const Static = require('../models/Static')
 const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
+const Cache = require('../utility/cache.service')
+
+const ttl = 60 * 5 // 5 minutes (in seconds)
+const getCache = new Cache(ttl)
 
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
@@ -191,6 +195,28 @@ module.exports = server => {
     }
 
     return next(new errors.ResourceNotFoundError('Need Post hash'))
+  })
+
+  server.post('/flush', async (req, res, next) => {
+    const resToken = req.headers.authorization
+    try {
+      if(await utils.isExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('The token has expired'))
+      }
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
+    }
+
+    try {
+      getCache.flush()
+      res.send(204)
+      next()
+    } catch(err) {
+      console.log(err)
+      console.log(typeof(getCache))
+      console.log(getCache)
+      return next(new errors.InternalError('cache error'))
+    }
   })
 
   server.put('/post/:id', async (req, res, next) => { // 200 req

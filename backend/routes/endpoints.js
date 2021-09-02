@@ -52,6 +52,12 @@ module.exports = server => {
         docs += '        "type": "post",'
         docs += '        "description": "Receive new jwt",'
         docs += '        "response": "200"'
+        docs += '     },'
+        docs += '     {'
+        docs += '        "route": "/flush",'
+        docs += '        "type": "post",'
+        docs += '        "description": "Flush cache",'
+        docs += '        "response": "204"'
         docs += '     }'
         docs += ']}'
 

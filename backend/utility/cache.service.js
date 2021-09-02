@@ -1,4 +1,4 @@
-import NodeCache from 'node-cache'
+const NodeCache = require('node-cache')
 
 class Cache {
   constructor(ttlSeconds) {
@@ -40,4 +40,4 @@ class Cache {
 }
 
 
-export default Cache
+module.exports = Cache
