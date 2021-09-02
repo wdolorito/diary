@@ -8,13 +8,31 @@ const bauth = require('../utility/bauth')
 const utils = require('../utility/jwtutils')
 const Cache = require('../utility/cache.service')
 
-const ttl = 60 * 5 // 5 minutes (in seconds)
-const getCache = new Cache(ttl)
+const ttlGet = 60 * 5 // 5 minutes (in seconds)
+const ttlAuthor = 60 * 60 * 1 // 1 hour (in seconds)
+const getCache = new Cache(ttlGet)
+const authorCache = new Cache(ttlAuthor)
 
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
-      res(await Owner.find().select('-_id').select('-owner').select('-updatedAt').select('-__v').sort({ "createdAt": 1 }))
+      const key = 'getAuthor'
+      const author = authorCache.get(key, async () => {
+        let result
+        try {
+          result = await Owner.find()
+                              .select('-_id')
+                              .select('-owner')
+                              .select('-updatedAt')
+                              .select('-__v')
+                              .sort({ "createdAt": 1 })
+        } catch(err) {
+          console.log(err)
+        }
+        return result
+      }).then((result) => { return result })
+
+      res(author)
     } catch(err) {
       rej(err)
     }
@@ -24,7 +42,19 @@ const getAuthor = () => {
 const getAuthorForPost = () => {
   return new Promise(async (res, rej) => {
     try {
-      res(await Owner.find().sort({ "createdAt": 1 }))
+      const key = 'getAuthorForPost'
+      const author = authorCache.get(key, async () => {
+        let result
+        try {
+          result = await Owner.find()
+                              .sort({ "createdAt": 1 })
+        } catch(err) {
+          console.log(err)
+        }
+        return result
+      }).then((result) => { return result })
+
+      res(author)
     } catch(err) {
       rej(err)
     }
@@ -124,24 +154,36 @@ module.exports = server => {
 
   server.get('/posts', async (req, res, next) => {
     const tosend = []
+
+    let posts, length
     try {
-      const author = await getAuthor()
-      tosend.push(author[0])
+      posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": -1 })
+      length = posts.length
+      if(length > 0) {
+        for(count = 0; count < length; count++) {
+          tosend.push(posts[count])
+        }
+      } else {
+        return next(new errors.ResourceNotFoundError('no results found'))
+      }
     } catch(err) {
       return next(new errors.InvalidContentError(err))
     }
 
-    try {
-      const posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": -1 })
-      const length = posts.length
-      for(count = 0; count < length; count++) {
-        tosend.push(posts[count])
+    if(length > 0) {
+      try {
+        const author = await getAuthor()
+        tosend.splice(0, 0, author[0])
+      } catch(err) {
+        return next(new errors.InvalidContentError(err))
       }
+    } else {
+      return next(new errors.ResourceNotFoundError('no results found'))
+    }
 
+    if(tosend.length > 1) {
       res.send(200, tosend)
       next()
-    } catch(err) {
-      return next(new errors.InvalidContentError(err))
     }
 
     return next(new errors.ResourceNotFoundError('unable to retrieve results'))
@@ -209,6 +251,7 @@ module.exports = server => {
 
     try {
       getCache.flush()
+      authorCache.flush()
       res.send(204)
       next()
     } catch(err) {
