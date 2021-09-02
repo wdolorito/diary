@@ -9,15 +9,15 @@ const utils = require('../utility/jwtutils')
 const Cache = require('../utility/cache.service')
 
 const ttlGet = 60 * 5 // 5 minutes (in seconds)
-const ttlAuthor = 60 * 60 * 1 // 1 hour (in seconds)
+const ttlStatic = 60 * 60 * 1 // 1 hour (in seconds)
 const getCache = new Cache(ttlGet)
-const authorCache = new Cache(ttlAuthor)
+const staticCache = new Cache(ttlStatic)
 
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
     try {
       const key = 'getAuthor'
-      const author = authorCache.get(key, async () => {
+      const author = await staticCache.get(key, async () => {
         let result
         try {
           result = await Owner.find()
@@ -43,7 +43,7 @@ const getAuthorForPost = () => {
   return new Promise(async (res, rej) => {
     try {
       const key = 'getAuthorForPost'
-      const author = authorCache.get(key, async () => {
+      const author = await staticCache.get(key, async () => {
         let result
         try {
           result = await Owner.find()
@@ -157,7 +157,20 @@ module.exports = server => {
 
     let posts, length
     try {
-      posts = await Post.find().select('-__v').select('-owner').sort({ "updatedAt": -1 })
+      const key = 'getAllPosts'
+      posts = await getCache.get(key, async () => {
+        let result
+        try {
+          result = await Post.find()
+                             .select('-__v')
+                             .select('-owner')
+                             .sort({ "updatedAt": -1 })
+        } catch(err) {
+          console.log(err)
+        }
+        return result
+      }).then((result) => { return result })
+
       length = posts.length
       if(length > 0) {
         for(count = 0; count < length; count++) {
@@ -197,7 +210,18 @@ module.exports = server => {
 
       let post = null
       try {
-        post = await Post.findOne({ titleHash }).select('-__v').select('-owner')
+        const key = 'getPost_' + titleHash
+        post = await getCache.get(key, async () => {
+          let result
+          try {
+            result = await Post.findOne({ titleHash })
+                               .select('-__v')
+                               .select('-owner')
+          } catch(err) {
+            console.log(err)
+          }
+          return result
+        }).then((result) => { return result })
       } catch(err) {
         return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
       }
@@ -223,7 +247,17 @@ module.exports = server => {
 
       let page = null
       try {
-        page = await Static.findOne({ section }).select('-__v')
+        const key = 'getStatic_' + section
+        page = await staticCache.get(key, async () => {
+          let result
+          try {
+            result = await Static.findOne({ section })
+                                 .select('-__v')
+          } catch(err) {
+            console.log(err)
+          }
+          return result
+        }).then((result) => { return result })
       } catch(err) {
         return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
       }
@@ -251,7 +285,7 @@ module.exports = server => {
 
     try {
       getCache.flush()
-      authorCache.flush()
+      staticCache.flush()
       res.send(204)
       next()
     } catch(err) {
