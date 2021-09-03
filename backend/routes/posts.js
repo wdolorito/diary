@@ -337,23 +337,22 @@ module.exports = server => {
           set.summary = summary
         }
 
+        let result
         try {
-          const key = 'getPost_' + titleHash
-          await getCache.del(key, async () => {
-            let result
-            try {
-              result = await Post.findOneAndUpdate({ _id: id }, { $set: set })
-            } catch(err) {
-              console.log(err)
-            }
-            return result
-          }).then((result) => { return result })
-
-          res.send(200, 'updated post')
-          next()
+          result = await Post.findOneAndUpdate({ _id: id }, { $set: set })
         } catch(err) {
-          return next(new errors.InternalError('Unable to update Post ' + id))
+          console.log('result error', err)
         }
+
+        try {
+          const key = 'getPost_' + result.titleHash
+          await getCache.del([ key, 'getAllPosts' ])
+        } catch(err) {
+          console.log(err)
+        }
+
+        res.send(200, 'updated post')
+        next()
       }
 
       if(section) {
@@ -400,8 +399,7 @@ module.exports = server => {
         const post = await Post.findOneAndDelete({ _id: id })
         try {
           const key = 'getPost_' + post.titleHash
-          await getCache.del(key)
-          await getCache.del('getAllPosts')
+          await getCache.del([ key, 'getAllPosts'])
         } catch(err) {
           return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
         }
