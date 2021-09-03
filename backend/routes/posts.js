@@ -10,8 +10,8 @@ const Cache = require('../utility/cache.service')
 
 const ttlGet = 60 * 5 // 5 minutes (in seconds)
 const ttlStatic = 60 * 60 * 1 // 1 hour (in seconds)
-const getCache = new Cache(ttlGet)
-const staticCache = new Cache(ttlStatic)
+const getCache = new Cache('getCache', ttlGet)
+const staticCache = new Cache('staticCache', ttlStatic)
 
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
@@ -30,7 +30,7 @@ const getAuthor = () => {
           console.log(err)
         }
         return result
-      }).then((result) => { return result })
+      })
 
       res(author)
     } catch(err) {
@@ -52,7 +52,7 @@ const getAuthorForPost = () => {
           console.log(err)
         }
         return result
-      }).then((result) => { return result })
+      })
 
       res(author)
     } catch(err) {
@@ -157,6 +157,40 @@ module.exports = server => {
     return next(new errors.InternalError('unable to post'))
   })
 
+  server.post('/flush', async (req, res, next) => {
+    const resToken = req.headers.authorization
+    try {
+      if(await utils.isExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('The token has expired'))
+      }
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
+    }
+
+    getCache.flush()
+    staticCache.flush()
+    res.send(204)
+    next()
+  })
+
+  server.post('/cache_stats', async (req, res, next) => {
+    const resToken = req.headers.authorization
+    try {
+      if(await utils.isExpired(resToken)) {
+        return next(new errors.InvalidCredentialsError('The token has expired'))
+      }
+    } catch(err) {
+      return next(new errors.InternalError('db error'))
+    }
+
+    const stats = {}
+    stats.getCache = getCache.stats()
+    stats.staticCache = staticCache.stats()
+
+    res.send(stats)
+    next()
+  })
+
   server.get('/posts', async (req, res, next) => {
     const tosend = []
 
@@ -174,7 +208,7 @@ module.exports = server => {
           console.log(err)
         }
         return result
-      }).then((result) => { return result })
+      })
 
       length = posts.length
       if(length > 0) {
@@ -226,7 +260,7 @@ module.exports = server => {
             console.log(err)
           }
           return result
-        }).then((result) => { return result })
+        })
       } catch(err) {
         return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
       }
@@ -262,7 +296,7 @@ module.exports = server => {
             console.log(err)
           }
           return result
-        }).then((result) => { return result })
+        })
       } catch(err) {
         return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
       }
@@ -275,33 +309,10 @@ module.exports = server => {
       }
     }
 
-    return next(new errors.ResourceNotFoundError('Need Post hash'))
+    return next(new errors.ResourceNotFoundError('Need hash'))
   })
 
-  server.post('/flush', async (req, res, next) => {
-    const resToken = req.headers.authorization
-    try {
-      if(await utils.isExpired(resToken)) {
-        return next(new errors.InvalidCredentialsError('The token has expired'))
-      }
-    } catch(err) {
-      return next(new errors.InternalError('db error'))
-    }
-
-    try {
-      getCache.flush()
-      staticCache.flush()
-      res.send(204)
-      next()
-    } catch(err) {
-      console.log(err)
-      console.log(typeof(getCache))
-      console.log(getCache)
-      return next(new errors.InternalError('cache error'))
-    }
-  })
-
-  server.put('/post/:id', async (req, res, next) => { // 200 req
+  server.put('/post/:id', async (req, res, next) => { // 204 req
     if(!req.is('application/json')) {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
@@ -320,9 +331,9 @@ module.exports = server => {
     if(id !== null) {
       let { section, title, body, summary } = req.body
 
-      const set = {}
-
       if(title) {
+        const set = {}
+
         set.title = title
         set.friendlyURL = createFriendlyURL(title)
         set.titleHash = createTitleHash(set.friendlyURL)
@@ -341,43 +352,43 @@ module.exports = server => {
         try {
           result = await Post.findOneAndUpdate({ _id: id }, { $set: set })
         } catch(err) {
-          console.log('result error', err)
+          return next(new errors.InternalError('Unable to update post ' + id))
         }
 
         try {
           const key = 'getPost_' + result.titleHash
           await getCache.del([ key, 'getAllPosts' ])
+          res.send(204)
+          next()
         } catch(err) {
-          console.log(err)
+          console.log('cache error ', err)
         }
 
-        res.send(200, 'updated post')
-        next()
+        return next(new errors.InternalError('Unable to update post ' + id))
       }
 
       if(section) {
         set.section = section
         set.body = body
 
+        let result
         try {
-          const key = 'getStatic_' + section
-          await staticCache.del(key, async () => {
-            let result
-            try {
-              result = await Static.findOneAndUpdate({ section }, { $set: set })
-            } catch(err) {
-              console.log(err)
-            }
-            return result
-          }).then((result) => { return result })
-
-          res.send(200, 'updated section')
-          next()
+          result = await Static.findOneAndUpdate({ section }, { $set: set })
         } catch(err) {
           return next(new errors.InternalError('Unable to update Section ' + section))
         }
-      }
 
+        try {
+          const key = 'getPost_' + result.titleHash
+          await getCache.del([ key, 'getAllPosts' ])
+          res.send(204)
+          next()
+        } catch(err) {
+          console.log('cache error ', err)
+        }
+
+        return next(new errors.InternalError('Unable to update Section ' + section))
+      }
     }
 
     return next(new errors.ResourceNotFoundError('Need Post ID to update'))
@@ -395,15 +406,16 @@ module.exports = server => {
 
     const id = req.params.id || null
     if(id !== null) {
+      let post
       try {
-        const post = await Post.findOneAndDelete({ _id: id })
-        try {
-          const key = 'getPost_' + post.titleHash
-          await getCache.del([ key, 'getAllPosts'])
-        } catch(err) {
-          return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
-        }
+        post = await Post.findOneAndDelete({ _id: id })
+      } catch(err) {
+        return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
+      }
 
+      try {
+        const key = 'getPost_' + post.titleHash
+        await getCache.del([ key, 'getAllPosts'])
         res.send(204, 'deleted post')
         next()
       } catch(err) {
