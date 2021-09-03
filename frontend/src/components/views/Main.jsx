@@ -35,7 +35,7 @@ class Main extends Component {
       )
     }
 
-    if(this.props.received && this.props.posts.length === 1) {
+    if(this.props.received && this.props.posts.length === 0) {
       return (
         <div>
           <h1 className='center-align'>Nothing to see here</h1>

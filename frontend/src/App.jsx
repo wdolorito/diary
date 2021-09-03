@@ -221,17 +221,16 @@ class App extends Component {
       .then(
         (res) => {
           if(res.status === 200) {
-            this.setState({
-                            posts: res.data,
-                            received: true
-                          })
+            this.setState({ posts: res.data })
           }
         },
         (err) => {
-          console.log(this.state.postsLink)
-          console.log(err.response)
+          console.log('get posts error ', postsLink)
+          console.log(err)
         }
       )
+
+      this.setState({ received: true })
     } else {
       setTimeout(() => {
         if(this.cancel !== null) this.cancel()

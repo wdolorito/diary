@@ -127,6 +127,11 @@ module.exports = server => {
 
       try {
         await post.save()
+        try {
+          await getCache.del(getAllPosts)
+        } catch {
+          return next(new errors.InternalError('unable to post'))
+        }
         res.send(201, 'saved post')
         next()
       } catch(err) {
