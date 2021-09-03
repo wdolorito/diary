@@ -128,7 +128,7 @@ module.exports = server => {
       try {
         await post.save()
         try {
-          await getCache.del(getAllPosts)
+          await getCache.del('getAllPosts')
         } catch {
           return next(new errors.InternalError('unable to post'))
         }
@@ -401,6 +401,7 @@ module.exports = server => {
         try {
           const key = 'getPost_' + post.titleHash
           await getCache.del(key)
+          await getCache.del('getAllPosts')
         } catch(err) {
           return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
         }
