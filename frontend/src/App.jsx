@@ -43,6 +43,8 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const time = new Date().getTime()
+    console.log('app mounted ' + time)
     this.setLinks()
   }
 
@@ -54,6 +56,8 @@ class App extends Component {
   }
 
   componentWillUnmount() {
+    const time = new Date().getTime()
+    console.log('app unmounted ' + time)
     if(this.cancel !== null) this.cancel()
     this.setState(this.baseState)
   }
@@ -292,6 +296,14 @@ class App extends Component {
     }
   }
 
+  resetAbout = () => {
+    console.log('about reset, contents + flag')
+    this.setState({
+                   about: null,
+                   aboutReceived: false
+                 })
+  }
+
   render() {
     return (
       <Router>
@@ -365,6 +377,7 @@ class App extends Component {
                   key='sectionEditorDisplay'
                   logged={ this.state.logged }
                   callPost={ this.callPost }
+                  resetAbout={ this.resetAbout }
                 /> }
             />
             <Route

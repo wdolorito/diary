@@ -69,9 +69,9 @@ class SectionEditor extends Component {
     const body = this.state.body
     const payload = { body, section }
 
+    this.props.resetAbout()
     this.props.callPost('put', payload, 'static?' + section)
-    this.props.callPost('get', null, 'static?' + section)
-    this.props.history.push('/' + section)
+    this.props.history.push('/')
   }
 
   resetForm = () => {
