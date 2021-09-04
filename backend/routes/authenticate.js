@@ -76,7 +76,7 @@ module.exports = server => {
       return next(new errors.InternalError('unable to remove refresh token'))
     }
 
-    res.send(204)
+    res.send(200, 'logged out')
     next()
   })
 

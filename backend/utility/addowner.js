@@ -84,7 +84,7 @@ const doAdd = async () => {
   try {
     await seedSection(impabout.about.section, impabout.about.body)
   } catch(err) {
-    console.log(impabout.about.section + ' wasn\'t seeded')
+    console.log(impabout.about.section, 'wasn\'t seeded')
     console.log(err)
   }
 }

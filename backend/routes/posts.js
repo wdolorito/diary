@@ -27,14 +27,14 @@ const getAuthor = () => {
                               .select('-__v')
                               .sort({ "createdAt": 1 })
         } catch(err) {
-          console.log(err)
+          rej(new errors.InternalError('author lookup failed'))
         }
         return result
       })
 
       res(author)
     } catch(err) {
-      rej(err)
+      rej(new errors.InternalError('author lookup failed'))
     }
   })
 }
@@ -49,14 +49,14 @@ const getAuthorForPost = () => {
           result = await Owner.find()
                               .sort({ "createdAt": 1 })
         } catch(err) {
-          console.log(err)
+          rej(new errors.InternalError('authorForPost lookup failed'))
         }
         return result
       })
 
       res(author)
     } catch(err) {
-      rej(err)
+      rej(new errors.InternalError('authorForPost lookup failed'))
     }
   })
 }
@@ -132,7 +132,7 @@ module.exports = server => {
         } catch {
           return next(new errors.InternalError('unable to post'))
         }
-        res.send(201, 'saved post')
+        res.send(201, friendlyURL + ' saved')
         next()
       } catch(err) {
         return next(new errors.InternalError('unable to post'))
@@ -169,7 +169,7 @@ module.exports = server => {
 
     getCache.flush()
     staticCache.flush()
-    res.send(204)
+    res.send(200, 'all cache flushed')
     next()
   })
 
@@ -187,7 +187,7 @@ module.exports = server => {
     stats.getCache = getCache.stats()
     stats.staticCache = staticCache.stats()
 
-    res.send(stats)
+    res.send(200, stats)
     next()
   })
 
@@ -205,7 +205,7 @@ module.exports = server => {
                              .select('-owner')
                              .sort({ "updatedAt": -1 })
         } catch(err) {
-          console.log(err)
+          return next(new errors.InvalidContentError(err))
         }
         return result
       })
@@ -257,18 +257,18 @@ module.exports = server => {
                                .select('-__v')
                                .select('-owner')
           } catch(err) {
-            console.log(err)
+            return new errors.InternalError(titleHash + ' findOne() failed')
           }
           return result
         })
       } catch(err) {
-        return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
+        return next(new errors.ResourceNotFoundError(titleHash + ' not found'))
       }
 
       if(post !== null) {
         tosend.push(post)
       } else {
-        return next(new errors.ResourceNotFoundError( titleHash + ' not found'))
+        return next(new errors.ResourceNotFoundError(titleHash + ' not found'))
       }
 
       try {
@@ -293,26 +293,26 @@ module.exports = server => {
             result = await Static.findOne({ section })
                                  .select('-__v')
           } catch(err) {
-            console.log(err)
+            return new errors.InternalError(section, + ' findOne() failed')
           }
           return result
         })
       } catch(err) {
-        return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
+        return next(new errors.ResourceNotFoundError('Static page ' + section + ' not found'))
       }
 
       if(page !== null) {
         res.send(200, page)
         next()
       } else {
-        return next(new errors.ResourceNotFoundError( 'Static page ' + section + ' not found'))
+        return next(new errors.ResourceNotFoundError('Static page ' + section + ' not found'))
       }
     }
 
     return next(new errors.ResourceNotFoundError('Need hash'))
   })
 
-  server.put('/post/:id', async (req, res, next) => { // 204 req
+  server.put('/post/:id', async (req, res, next) => {
     if(!req.is('application/json')) {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
@@ -327,13 +327,12 @@ module.exports = server => {
     }
 
     const id = req.params.id || null
+    const set = {}
 
-    if(id !== null) {
-      let { section, title, body, summary } = req.body
+    if(id !== null && id !== 'static') {
+      let { title, body, summary } = req.body
 
       if(title) {
-        const set = {}
-
         set.title = title
         set.friendlyURL = createFriendlyURL(title)
         set.titleHash = createTitleHash(set.friendlyURL)
@@ -358,43 +357,42 @@ module.exports = server => {
         try {
           const key = 'getPost_' + result.titleHash
           await getCache.del([ key, 'getAllPosts' ])
-          res.send(204)
+          res.send(200, result.friendlyURL + ' deleted')
           next()
         } catch(err) {
-          console.log('cache error ', err)
+          return next(new errors.InternalError('Unable to delete getCache'))
         }
 
-        return next(new errors.InternalError('Unable to update post ' + id))
+        return next(new errors.InternalError('Unable to update post ' +  id))
+      }
+    } else if(id === 'static') {
+      const section = req.getQuery()
+      const { body } = req.body
+      if(body) {
+        set.body = body
       }
 
-      if(section) {
-        set.section = section
-        set.body = body
-
-        let result
-        try {
-          result = await Static.findOneAndUpdate({ section }, { $set: set })
-        } catch(err) {
-          return next(new errors.InternalError('Unable to update Section ' + section))
-        }
-
-        try {
-          const key = 'getPost_' + result.titleHash
-          await getCache.del([ key, 'getAllPosts' ])
-          res.send(204)
-          next()
-        } catch(err) {
-          console.log('cache error ', err)
-        }
-
+      let result
+      try {
+        result = await Static.findOneAndUpdate({ section }, { $set: set })
+      } catch(err) {
         return next(new errors.InternalError('Unable to update Section ' + section))
       }
+
+      try {
+        const key = 'getStatic_' + section
+        await staticCache.del(key)
+      } catch(err) {
+        return next(new errors.InternalError('Unable to delete staticCache'))
+      }
+
+      return next(new errors.InternalError('Unable to update Section ' + section))
     }
 
     return next(new errors.ResourceNotFoundError('Need Post ID to update'))
   })
 
-  server.del('/post/:id', async (req, res, next) => { // 204 req
+  server.del('/post/:id', async (req, res, next) => {
     const resToken = req.headers.authorization
     try {
       if(await utils.isExpired(resToken)) {
@@ -416,7 +414,7 @@ module.exports = server => {
       try {
         const key = 'getPost_' + post.titleHash
         await getCache.del([ key, 'getAllPosts'])
-        res.send(204, 'deleted post')
+        res.send(200, post.titleHash + ' deleted')
         next()
       } catch(err) {
         return next(new errors.ResourceNotFoundError('Unable to delete Post ' + id))
