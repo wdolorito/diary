@@ -50,7 +50,7 @@ class App extends Component {
 
   componentDidUpdate() {
     if(!this.state.refreshed && !this.state.inRefresh) {
-      this.setState({ inRefresh: true }, this.checkLogStatus())
+      this.setState({ inRefresh: true }, this.doRefresh())
     }
   }
 
@@ -82,21 +82,24 @@ class App extends Component {
                   })
   }
 
-  getToken = () => {
-    const token = localStorage.getItem('token')
-    return token
+  setLogged = () => {
+    this.setState({ logged: true })
   }
 
   storeToken = (token) => {
+    console.log('storing token', token)
     localStorage.setItem('token', token)
   }
 
-  resetToken = () => {
-    localStorage.removeItem('token')
+  getToken = () => {
+    const token = localStorage.getItem('token')
+    console.log('getting token', token)
+    return token
   }
 
-  setLogged = () => {
-    this.setState({ logged: true })
+  resetToken = () => {
+    console.log('removing token', localStorage.getItem('token'))
+    localStorage.removeItem('token')
   }
 
   resetAbout = () => {
@@ -108,7 +111,15 @@ class App extends Component {
   }
 
   setupAxios = () => {
-    axios.defaults.cancelToken = new CancelToken(c => this.cancel = c)
+    axios.interceptors.request.use(
+      req => {
+        req.cancelToken = new CancelToken(c => this.cancel = c)
+        return req
+      },
+      err => {
+        return Promise.reject(err)
+      }
+    )
 
     axios.interceptors.response.use(
       res => {
@@ -116,23 +127,20 @@ class App extends Component {
         return res
       },
       err => {
-        return Promise.reject(err)
-      }
-    )
-
-    axios.interceptors.request.use(
-      req => {
-        console.log('request', req)
-        return req
-      },
-      err => {
+        const res = err.response
+        const url = res.config.url
+        const status = res.status
+        const refresh = this.state.refreshLink
+        console.log(res)
+        console.log('error', url)
+        console.log('error', status)
+        console.log(url === refresh)
         return Promise.reject(err)
       }
     )
   }
 
   doAxios = (params, success, fail) => {
-
     axios(params)
       .then(res => {
         success(res)
@@ -207,21 +215,9 @@ class App extends Component {
     }
   }
 
-  checkLogStatus = () => {
-    if(this.getToken() !== null) {
-      this.doRefresh()
-    }
-  }
-
-  doRefresh = (params, cb) => {
+  doRefresh = () => {
     const token = this.getToken()
     if(token) {
-      this.refreshAxios(token, params, cb)
-    }
-  }
-
-  refreshAxios = (token, params, cb) => {
-    setTimeout(() => {
       const refreshLink = this.state.refreshLink
       if(refreshLink.length > 7) {
         const params = {
@@ -236,15 +232,10 @@ class App extends Component {
             this.setLogged()
             this.storeToken(res.data.refresh)
             this.setState({ refreshed: true })
-            if(typeof(cb) === 'function') {
-              const { type, payload, id } = params
-              cb(type, payload, id)
-            }
           }
         }
 
         const fail = (err) => {
-          console.log(err)
           this.resetJwt()
           this.resetToken()
         }
@@ -253,10 +244,10 @@ class App extends Component {
       } else {
         setTimeout(() => {
           if(this.cancel !== null) this.cancel()
-          this.refreshAxios(token, params, cb)
-        })
+          this.doRefresh()
+        }, 100)
       }
-    }, 100)
+    }
   }
 
   getPosts = () => {
@@ -276,6 +267,7 @@ class App extends Component {
       const fail = (err) => {
         console.log('get posts error ', postsLink)
       }
+
       this.doAxios(params, success, fail)
       this.setState({ received: true })
     } else {
@@ -294,7 +286,6 @@ class App extends Component {
       const options = {}
       options.method = type
       options.url = link
-      options.cancelToken = new CancelToken(c => this.cancel = c)
       if(type !== 'get') options.headers = { 'Authorization': 'Bearer ' + this.state.jwt }
       if(payload) options.data = payload
 
@@ -310,18 +301,8 @@ class App extends Component {
             this.setState({
                           received: false,
                           lookUp: res.data,
-                          lookUpReceived: true }, this.getPosts())
+                          lookUpReceived: true })
           }
-        } else {
-          this.getPosts()
-        }
-
-        if(res.status === 401 || res.status === 500) {
-          this.setState({ refreshed: false },
-            () => {
-              const params = { type, payload, id }
-              this.doRefresh(params, this.callPost)
-            })
         }
       }
 

@@ -14,25 +14,21 @@ class About extends Component {
   componentDidMount() {
     const time = new Date().getTime()
     console.log('about mounted ' + time)
-    this.doStartup()
   }
 
   componentDidUpdate() {
     const time = new Date().getTime()
     console.log('about updated ' + time)
-    this.doStartup()
+
+    if(!this.state.updated) {
+      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
+    }
   }
 
   componentWillUnmount() {
     const time = new Date().getTime()
     console.log('about unmounted ' + time)
     this.setState(this.baseState)
-  }
-
-  doStartup = () => {
-    if(!this.state.updated) {
-      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
-    }
   }
 
   render() {

@@ -11,7 +11,6 @@ class Main extends Component {
   componentDidUpdate() {
     const time = new Date().getTime()
     console.log('main updated ' + time)
-    this.doStartup()
   }
 
   componentWillUnmount() {
