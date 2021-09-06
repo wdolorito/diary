@@ -357,7 +357,7 @@ module.exports = server => {
         try {
           const key = 'getPost_' + result.titleHash
           await getCache.del([ key, 'getAllPosts' ])
-          res.send(200, result.friendlyURL + ' deleted')
+          res.send(200, result.friendlyURL + ' updated')
           next()
         } catch(err) {
           return next(new errors.InternalError('Unable to delete getCache'))

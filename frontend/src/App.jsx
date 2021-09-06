@@ -5,7 +5,6 @@ import axios, { CancelToken } from 'axios'
 
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-
 import Main from './components/views/Main'
 import About from './components/views/About'
 import Error from './components/Fragments/Error'
@@ -17,8 +16,6 @@ import SectionEditor from './components/views/SectionEditor'
 class App extends Component {
   constructor(props) {
     super(props)
-
-    this.cancel = null
 
     this.state = {
       baseLink: 'http://localhost:5000/',
@@ -40,16 +37,18 @@ class App extends Component {
     }
 
     this.baseState = this.state
+
+    this.cancel = null
   }
 
   componentDidMount() {
     const time = new Date().getTime()
     console.log('app mounted ' + time)
+    this.setupAxios()
     this.setLinks()
   }
 
   componentDidUpdate() {
-    console.log(!this.state.refreshed, !this.state.inRefresh)
     if(!this.state.refreshed && !this.state.inRefresh) {
       this.setState({ inRefresh: true }, this.checkLogStatus())
     }
@@ -60,12 +59,6 @@ class App extends Component {
     console.log('app unmounted ' + time)
     if(this.cancel !== null) this.cancel()
     this.setState(this.baseState)
-  }
-
-  checkLogStatus = () => {
-    if(this.getToken() !== null) {
-      this.doRefresh()
-    }
   }
 
   setLinks = () => {
@@ -90,18 +83,15 @@ class App extends Component {
   }
 
   getToken = () => {
-    console.log('getting token')
     const token = localStorage.getItem('token')
     return token
   }
 
   storeToken = (token) => {
-    console.log('storing: ', token)
     localStorage.setItem('token', token)
   }
 
   resetToken = () => {
-    console.log('removing: ', this.getToken())
     localStorage.removeItem('token')
   }
 
@@ -109,37 +99,117 @@ class App extends Component {
     this.setState({ logged: true })
   }
 
+  resetAbout = () => {
+    console.log('about reset, contents + flag')
+    this.setState({
+                   about: null,
+                   aboutReceived: false
+                 })
+  }
+
+  setupAxios = () => {
+    axios.defaults.cancelToken = new CancelToken(c => this.cancel = c)
+
+    axios.interceptors.response.use(
+      res => {
+        console.log('response', res)
+        return res
+      },
+      err => {
+        return Promise.reject(err)
+      }
+    )
+
+    axios.interceptors.request.use(
+      req => {
+        console.log('request', req)
+        return req
+      },
+      err => {
+        return Promise.reject(err)
+      }
+    )
+  }
+
+  doAxios = (params, success, fail) => {
+
+    axios(params)
+      .then(res => {
+        success(res)
+      },
+      err => {
+        fail(err)
+      })
+  }
+
   doLogin = (log, pass) => {
     const loginLink = this.state.loginLink
     if(loginLink.length > 5) {
-      axios({
+      const params = {
         method: 'post',
         url: loginLink,
-        cancelToken: new CancelToken(c => this.cancel = c),
         data: {
           email: log,
           password: pass
         }
-      })
-      .then(
-        (res) => {
-          if(res.status === 200) {
-            this.setJwt(res.data.token)
-            this.setLogged()
-            this.storeToken(res.data.refresh)
-            this.setState({ refreshed: true })
-          }
-        },
-        (err) => {
-          alert('Unable to log in.')
-          this.resetJwt()
+      }
+
+      const success = (res) => {
+        if(res.status === 200) {
+          this.setJwt(res.data.token)
+          this.setLogged()
+          this.storeToken(res.data.refresh)
+          this.setState({ refreshed: true })
         }
-      )
+      }
+
+      const fail = (err) => {
+        alert('Unable to log in.')
+        this.resetJwt()
+      }
+
+      this.doAxios(params, success, fail)
     } else {
       setTimeout(() => {
         if(this.cancel !== null) this.cancel()
         this.doLogin(log, pass)
       }, 100)
+    }
+  }
+
+  doLogout = () => {
+    const logoutLink = this.state.logoutLink
+    if(logoutLink.length > 6) {
+      const fail = (err) => {
+        this.resetJwt()
+        this.resetToken()
+        this.setState({ received: false }, this.getPosts())
+      }
+
+      const token = this.getToken()
+      if(token) {
+        const params = {
+          method: 'post',
+          url: logoutLink,
+          headers: {
+            'Authorization': 'Bearer ' + this.state.jwt
+          },
+          data: { token }
+        }
+
+        this.doAxios(params, fail, fail)
+      } else {
+        fail('reset authentication')
+      }
+    } else {
+      if(this.cancel !== null) this.cancel()
+      this.doLogout()
+    }
+  }
+
+  checkLogStatus = () => {
+    if(this.getToken() !== null) {
+      this.doRefresh()
     }
   }
 
@@ -154,31 +224,32 @@ class App extends Component {
     setTimeout(() => {
       const refreshLink = this.state.refreshLink
       if(refreshLink.length > 7) {
-        axios({
+        const params = {
           method: 'post',
           url: refreshLink,
-          cancelToken: new CancelToken(c => this.cancel = c),
           data: { token }
-        })
-        .then(
-          (res) => {
-            if(res.status === 200) {
-              this.setJwt(res.data.token)
-              this.setLogged()
-              this.storeToken(res.data.refresh)
-              this.setState({ refreshed: true })
-              if(typeof(cb) === 'function') {
-                const { type, payload, id } = params
-                cb(type, payload, id)
-              }
+        }
+
+        const success = (res) => {
+          if(res.status === 200) {
+            this.setJwt(res.data.token)
+            this.setLogged()
+            this.storeToken(res.data.refresh)
+            this.setState({ refreshed: true })
+            if(typeof(cb) === 'function') {
+              const { type, payload, id } = params
+              cb(type, payload, id)
             }
-          },
-          (err) => {
-            console.log(err)
-            this.resetJwt()
-            this.resetToken()
           }
-        )
+        }
+
+        const fail = (err) => {
+          console.log(err)
+          this.resetJwt()
+          this.resetToken()
+        }
+
+        this.doAxios(params, success, fail)
       } else {
         setTimeout(() => {
           if(this.cancel !== null) this.cancel()
@@ -188,52 +259,24 @@ class App extends Component {
     }, 100)
   }
 
-  doLogout = () => {
-    const logoutLink = this.state.logoutLink
-    if(logoutLink.length > 6) {
-      const token = this.getToken()
-      if(token) {
-        axios({
-          method: 'post',
-          url: logoutLink,
-          cancelToken: new CancelToken(c => this.cancel = c),
-          headers: {
-            'Authorization': 'Bearer ' + this.state.jwt
-          },
-          data: { token }
-        })
-        .then((res, err) => {
-          this.resetJwt()
-          this.resetToken()
-          this.setState({ received: false }, this.getPosts())
-        })
-      }
-    } else {
-      if(this.cancel !== null) this.cancel()
-      this.doLogout()
-    }
-  }
-
   getPosts = () => {
     const postsLink = this.state.postsLink
     if(postsLink.length > 5) {
-      axios({
+      const params = {
         method: 'get',
         url: postsLink,
-        cancelToken: new CancelToken(c => this.cancel = c)
-      })
-      .then(
-        (res) => {
-          if(res.status === 200) {
-            this.setState({ posts: res.data })
-          }
-        },
-        (err) => {
-          console.log('get posts error ', postsLink)
-          console.log(err)
-        }
-      )
+      }
 
+      const success = (res) => {
+        if(res.status === 200) {
+          this.setState({ posts: res.data })
+        }
+      }
+
+      const fail = (err) => {
+        console.log('get posts error ', postsLink)
+      }
+      this.doAxios(params, success, fail)
       this.setState({ received: true })
     } else {
       setTimeout(() => {
@@ -255,53 +298,45 @@ class App extends Component {
       if(type !== 'get') options.headers = { 'Authorization': 'Bearer ' + this.state.jwt }
       if(payload) options.data = payload
 
-      axios(options)
-        .then(
-          (res) => {
-            if(id) {
-              const isStatic = id.substring(0, 6)
-              if(isStatic === 'static') {
-                this.setState({
-                              about: res.data,
-                              aboutReceived: true
-                             })
-              } else {
-                this.setState({
-                              received: false,
-                              lookUp: res.data,
-                              lookUpReceived: true }, this.getPosts())
-              }
-            } else {
-              this.getPosts()
-            }
-
-            if(res.status === 401) {
-              this.setState({ refreshed: false },
-                () => {
-                  const params = { type, payload, id }
-                  this.doRefresh(params, this.callPost)
-                })
-            }
-          },
-          (err) => {
-            console.log(this.state.postLink)
-            console.log(err)
+      const success = (res) => {
+        if(id) {
+          const isStatic = id.substring(0, 6)
+          if(isStatic === 'static') {
+            this.setState({
+                          about: res.data,
+                          aboutReceived: true
+                         })
+          } else {
+            this.setState({
+                          received: false,
+                          lookUp: res.data,
+                          lookUpReceived: true }, this.getPosts())
           }
-        )
+        } else {
+          this.getPosts()
+        }
+
+        if(res.status === 401 || res.status === 500) {
+          this.setState({ refreshed: false },
+            () => {
+              const params = { type, payload, id }
+              this.doRefresh(params, this.callPost)
+            })
+        }
+      }
+
+      const fail = (err) => {
+        console.log(this.state.postLink)
+        console.log(err.response.status)
+      }
+
+      this.doAxios(options, success, fail)
     } else {
       setTimeout(() => {
         if(this.cancel !== null) this.cancel()
         this.callPost(type, payload, id)
       }, 100)
     }
-  }
-
-  resetAbout = () => {
-    console.log('about reset, contents + flag')
-    this.setState({
-                   about: null,
-                   aboutReceived: false
-                 })
   }
 
   render() {

@@ -19,7 +19,6 @@ class SectionEditor extends Component {
   componentDidMount() {
     const time = new Date().getTime()
     console.log('section editor mounted ' + time)
-    console.log(ClassicEditor.builtinPlugins.map( plugin => plugin.pluginName ))
     if(!this.props.logged) {
       window.location = '/'
     }
@@ -79,7 +78,6 @@ class SectionEditor extends Component {
   }
 
   render() {
-
     return (
       <div className='container'>
         <div className='row'>
