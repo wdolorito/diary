@@ -5,7 +5,9 @@ class Main extends Component {
   componentDidMount() {
     const time = new Date().getTime()
     console.log('main mounted ' + time)
-    this.doStartup()
+    if(!this.props.received) {
+      this.props.getPosts()
+    }
   }
 
   componentDidUpdate() {
@@ -16,12 +18,6 @@ class Main extends Component {
   componentWillUnmount() {
     const time = new Date().getTime()
     console.log('main unmounted ' + time)
-  }
-
-  doStartup = () => {
-    if(!this.props.received) {
-      this.props.getPosts()
-    }
   }
 
   render() {
