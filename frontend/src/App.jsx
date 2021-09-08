@@ -140,14 +140,18 @@ class App extends Component {
     )
   }
 
-  doAxios = (params, success, fail) => {
-    axios(params)
-      .then(res => {
-        success(res)
-      },
-      err => {
-        fail(err)
-      })
+  doAxios = async (params, success, fail) => {
+    try {
+      await axios(params)
+        .then(res => {
+          success(res)
+        },
+        err => {
+          fail(err)
+        })
+    } catch(err) {
+      console.log('axios failed', err)
+    }
   }
 
   doLogin = (log, pass) => {
@@ -188,13 +192,13 @@ class App extends Component {
   doLogout = () => {
     const logoutLink = this.state.logoutLink
     if(logoutLink.length > 6) {
+      const token = this.getToken()
       const fail = (err) => {
         this.resetJwt()
         this.resetToken()
         this.setState({ received: false }, this.getPosts())
       }
 
-      const token = this.getToken()
       if(token) {
         const params = {
           method: 'post',

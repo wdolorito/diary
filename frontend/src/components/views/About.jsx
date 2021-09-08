@@ -2,33 +2,22 @@ import { Component } from 'react'
 import { Link } from 'react-router-dom'
 
 class About extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      updated: false
-    }
-
-    this.baseState = this.state
-  }
   componentDidMount() {
     const time = new Date().getTime()
     console.log('about mounted ' + time)
+    if(!this.props.aboutReceived) {
+      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
+    }
   }
 
   componentDidUpdate() {
     const time = new Date().getTime()
     console.log('about updated ' + time)
-
-    if(!this.state.updated) {
-      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
-    }
   }
 
   componentWillUnmount() {
     const time = new Date().getTime()
     console.log('about unmounted ' + time)
-    this.setState(this.baseState)
   }
 
   render() {

@@ -17,7 +17,9 @@ class Header extends Component {
 
   onClick = () => {
     this.props.doLogout()
-    window.location = '/'
+    setTimeout(() => {
+      window.location = '/'
+    }, 100)
   }
 
   render() {
