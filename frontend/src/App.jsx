@@ -25,7 +25,6 @@ class App extends Component {
       postsLink: 'posts',
       postLink: 'post',
       refreshed: false,
-      inRefresh: false,
       received: false,
       posts: [],
       lookUp: null,
@@ -46,12 +45,14 @@ class App extends Component {
     console.log('app mounted ' + time)
     this.setupAxios()
     this.setLinks()
+    if(!this.state.refreshed) {
+      this.doRefresh()
+    }
   }
 
   componentDidUpdate() {
-    if(!this.state.refreshed && !this.state.inRefresh) {
-      this.setState({ inRefresh: true }, this.doRefresh())
-    }
+    console.log(this.state.refreshed)
+    if(this.state.refreshed && this.state.received) this.getPosts()
   }
 
   componentWillUnmount() {
@@ -195,8 +196,9 @@ class App extends Component {
       const token = this.getToken()
       const fail = (err) => {
         this.resetJwt()
+        console.log('in logout')
         this.resetToken()
-        this.setState({ received: false }, this.getPosts())
+        this.setState({ received: false })
       }
 
       if(token) {
@@ -241,6 +243,7 @@ class App extends Component {
 
         const fail = (err) => {
           this.resetJwt()
+          console.log('in refresh', err)
           this.resetToken()
         }
 
@@ -269,11 +272,14 @@ class App extends Component {
       }
 
       const fail = (err) => {
-        console.log('get posts error ', postsLink)
+        console.log('get posts error ', postsLink, err)
       }
 
-      this.doAxios(params, success, fail)
-      this.setState({ received: true })
+      if(!this.state.received) {
+        console.log('getting posts')
+        this.doAxios(params, success, fail)
+        this.setState({ received: true })
+      }
     } else {
       setTimeout(() => {
         if(this.cancel !== null) this.cancel()
