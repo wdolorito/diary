@@ -111,18 +111,24 @@ class App extends Component {
   setupAxios = () => {
     axios.interceptors.response.use(
       res => {
-        console.log('response', res)
+        console.log('response successful')
         return res
       },
       err => {
-        // const res = err.response
-        // const url = res.config.url
-        // const status = res.status
-        // const refresh = this.state.refreshLink
-        // console.log(res)
-        // console.log('error', url)
-        // console.log('error', status)
-        // console.log(url === refresh)
+        if(err.response) {
+          const res = err.response
+          const url = res.config.url
+          const status = res.status
+          const refresh = this.state.refreshLink
+
+          if(status === 400) console.log('bad request') // you've been naughty
+          if(status === 401) console.log('unauthorized') // do a refresh
+
+          console.log(res)
+          console.log('error', url)
+          console.log('error', status)
+          console.log(url === refresh)
+        }
         return Promise.reject(err)
       }
     )
