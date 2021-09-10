@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
-import axios, { CancelToken } from 'axios'
+import axios from 'axios'
 
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -24,7 +24,6 @@ class App extends Component {
       refreshLink: 'refresh',
       postsLink: 'posts',
       postLink: 'post',
-      refreshed: false,
       received: false,
       posts: [],
       lookUp: null,
@@ -32,12 +31,11 @@ class App extends Component {
       about: null,
       aboutReceived: false,
       jwt: '',
+      inRefresh: false,
       logged: false
     }
 
     this.baseState = this.state
-
-    this.cancel = null
   }
 
   componentDidMount() {
@@ -45,20 +43,19 @@ class App extends Component {
     console.log('app mounted ' + time)
     this.setupAxios()
     this.setLinks()
-    if(!this.state.refreshed) {
-      this.doRefresh()
+    const token = this.getToken()
+    if(!this.state.jwt && !this.state.inRefresh && token !== null) {
+      console.log('doRefresh() from app')
+      this.setState({ inRefresh: true}, this.doRefresh())
     }
   }
 
   componentDidUpdate() {
-    console.log(this.state.refreshed)
-    if(this.state.refreshed && this.state.received) this.getPosts()
   }
 
   componentWillUnmount() {
     const time = new Date().getTime()
     console.log('app unmounted ' + time)
-    if(this.cancel !== null) this.cancel()
     this.setState(this.baseState)
   }
 
@@ -112,47 +109,33 @@ class App extends Component {
   }
 
   setupAxios = () => {
-    axios.interceptors.request.use(
-      req => {
-        req.cancelToken = new CancelToken(c => this.cancel = c)
-        return req
-      },
-      err => {
-        return Promise.reject(err)
-      }
-    )
-
     axios.interceptors.response.use(
       res => {
         console.log('response', res)
         return res
       },
       err => {
-        const res = err.response
-        const url = res.config.url
-        const status = res.status
-        const refresh = this.state.refreshLink
-        console.log(res)
-        console.log('error', url)
-        console.log('error', status)
-        console.log(url === refresh)
+        // const res = err.response
+        // const url = res.config.url
+        // const status = res.status
+        // const refresh = this.state.refreshLink
+        // console.log(res)
+        // console.log('error', url)
+        // console.log('error', status)
+        // console.log(url === refresh)
         return Promise.reject(err)
       }
     )
   }
 
-  doAxios = async (params, success, fail) => {
-    try {
-      await axios(params)
-        .then(res => {
-          success(res)
-        },
-        err => {
-          fail(err)
-        })
-    } catch(err) {
-      console.log('axios failed', err)
-    }
+  doAxios = (params, success, fail) => {
+    axios(params)
+      .then(response => {
+        success(response)
+      },
+      err => {
+        fail(err)
+      })
   }
 
   doLogin = (log, pass) => {
@@ -172,7 +155,6 @@ class App extends Component {
           this.setJwt(res.data.token)
           this.setLogged()
           this.storeToken(res.data.refresh)
-          this.setState({ refreshed: true })
         }
       }
 
@@ -184,7 +166,6 @@ class App extends Component {
       this.doAxios(params, success, fail)
     } else {
       setTimeout(() => {
-        if(this.cancel !== null) this.cancel()
         this.doLogin(log, pass)
       }, 100)
     }
@@ -201,7 +182,7 @@ class App extends Component {
         this.setState({ received: false })
       }
 
-      if(token) {
+      if(token !== null) {
         const params = {
           method: 'post',
           url: logoutLink,
@@ -216,14 +197,13 @@ class App extends Component {
         fail('reset authentication')
       }
     } else {
-      if(this.cancel !== null) this.cancel()
       this.doLogout()
     }
   }
 
   doRefresh = () => {
     const token = this.getToken()
-    if(token) {
+    if(token !== null) {
       const refreshLink = this.state.refreshLink
       if(refreshLink.length > 7) {
         const params = {
@@ -237,7 +217,6 @@ class App extends Component {
             this.setJwt(res.data.token)
             this.setLogged()
             this.storeToken(res.data.refresh)
-            this.setState({ refreshed: true })
           }
         }
 
@@ -250,7 +229,6 @@ class App extends Component {
         this.doAxios(params, success, fail)
       } else {
         setTimeout(() => {
-          if(this.cancel !== null) this.cancel()
           this.doRefresh()
         }, 100)
       }
@@ -272,17 +250,14 @@ class App extends Component {
       }
 
       const fail = (err) => {
-        console.log('get posts error ', postsLink, err)
+        console.log('get posts error', postsLink, err)
       }
 
-      if(!this.state.received) {
-        console.log('getting posts')
+      this.setState({ received: true }, () => {
         this.doAxios(params, success, fail)
-        this.setState({ received: true })
-      }
+      })
     } else {
       setTimeout(() => {
-        if(this.cancel !== null) this.cancel()
         this.getPosts()
       }, 100)
     }
@@ -318,13 +293,12 @@ class App extends Component {
 
       const fail = (err) => {
         console.log(this.state.postLink)
-        console.log(err.response.status)
+        if(err.response) console.log(err.response.status)
       }
 
       this.doAxios(options, success, fail)
     } else {
       setTimeout(() => {
-        if(this.cancel !== null) this.cancel()
         this.callPost(type, payload, id)
       }, 100)
     }

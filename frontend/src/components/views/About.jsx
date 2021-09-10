@@ -6,7 +6,8 @@ class About extends Component {
     const time = new Date().getTime()
     console.log('about mounted ' + time)
     if(!this.props.aboutReceived) {
-      this.setState({ updated: true }, this.props.callPost('get', null, 'static?about'))
+      console.log('getting about')
+      this.props.callPost('get', null, 'static?about')
     }
   }
 
@@ -28,7 +29,6 @@ class About extends Component {
           <div className='row'>
             <div dangerouslySetInnerHTML={{ __html: body }} />
           </div>
-
           { (this.props.logged) &&
             <div className='center-align row'>
               <Link
@@ -42,10 +42,8 @@ class About extends Component {
               </Link>
             </div>
           }
-
-        </div>
+          </div>
       )
-
     }
 
     return (

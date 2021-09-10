@@ -6,6 +6,7 @@ class Main extends Component {
     const time = new Date().getTime()
     console.log('main mounted ' + time)
     if(!this.props.received) {
+      console.log('getting posts from main')
       this.props.getPosts()
     }
   }
