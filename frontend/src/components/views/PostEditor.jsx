@@ -20,7 +20,6 @@ class PostEditor extends Component {
   componentDidMount() {
     const time = new Date().getTime()
     console.log('post editor mounted ' + time)
-    console.log(ClassicEditor.builtinPlugins.map( plugin => plugin.pluginName ))
     if(!this.props.logged) {
       window.location = '/'
     }
@@ -112,6 +111,7 @@ class PostEditor extends Component {
                         value={ this.state.title }
                         onChange={ this.onTextInputChange }
                         placeholder='Title'
+                        maxlength='90'
                         required
                       />
                       <label htmlFor='title'>Title</label>
@@ -135,6 +135,7 @@ class PostEditor extends Component {
                           name='summary'
                           value={ this.state.summary }
                           onChange={ this.onTextInputChange }
+                          maxlength='138'
                           placeholder='Summary'
                         />
                         <label htmlFor='summary'>Summary</label>

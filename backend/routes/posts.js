@@ -92,19 +92,16 @@ module.exports = server => {
       return next(new errors.InvalidContentError('Data not sent correctly'))
     }
 
-    const { section, title, body } = req.body
-    let { summary } = req.body
+    const { section, body } = req.body
+    let { title, summary } = req.body
 
     if(title) {
+      if(title.length > 90) title = title.substring(0, 90).trim()
       const friendlyURL = createFriendlyURL(title)
       const titleHash = createTitleHash(friendlyURL)
 
       if(summary === undefined) {
         summary = body.substring(0, 140).trim()
-      }
-
-      if(summary.length >= 139) {
-        summary = summary.substring(0, 139).trim()
         summary += ' ...'
       }
 
@@ -343,7 +340,7 @@ module.exports = server => {
 
         if(summary) {
           summary = summary.substring(0, 140).trim()
-          if(summary.length >= 139) summary = summary + ' ...'
+          if(summary.length >= 139) summary += ' ...'
           set.summary = summary
         }
 

@@ -50,7 +50,7 @@ class Display extends Component {
   handleDelete = () => {
     const id = this.props.location.post._id
     this.props.callPost('delete', null, id)
-    window.location = '/'
+    setTimeout(() => { window.location = '/' }, 1000)
   }
 
   getPostByHash = (title) => {

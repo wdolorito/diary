@@ -41,7 +41,6 @@ class App extends Component {
   componentDidMount() {
     const time = new Date().getTime()
     console.log('app mounted ' + time)
-    this.setupAxios()
     this.setLinks()
     const token = this.getToken()
     if(!this.state.jwt && !this.state.inRefresh && token !== null) {
@@ -106,32 +105,6 @@ class App extends Component {
                    about: null,
                    aboutReceived: false
                  })
-  }
-
-  setupAxios = () => {
-    axios.interceptors.response.use(
-      res => {
-        console.log('response successful')
-        return res
-      },
-      err => {
-        if(err.response) {
-          const res = err.response
-          const url = res.config.url
-          const status = res.status
-          const refresh = this.state.refreshLink
-
-          if(status === 400) console.log('bad request') // you've been naughty
-          if(status === 401) console.log('unauthorized') // do a refresh
-
-          console.log(res)
-          console.log('error', url)
-          console.log('error', status)
-          console.log(url === refresh)
-        }
-        return Promise.reject(err)
-      }
-    )
   }
 
   doAxios = (params, success, fail) => {
@@ -295,14 +268,21 @@ class App extends Component {
                           lookUpReceived: true })
           }
         }
+        this.getPosts()
       }
 
       const fail = (err) => {
-        console.log(this.state.postLink)
-        if(err.response) console.log(err.response.status)
+        if(err.response) {
+          console.log(err.response)
+        }
       }
 
-      this.doAxios(options, success, fail)
+      if(type === 'put' || type === 'post') {
+        console.log('refreshing before put and post')
+        this.setState({ inRefresh: true}, this.doRefresh())
+      }
+
+      setTimeout(() => { this.doAxios(options, success, fail) }, 500)
     } else {
       setTimeout(() => {
         this.callPost(type, payload, id)
