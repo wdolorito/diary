@@ -23,6 +23,11 @@ class PostEditor extends Component {
     if(!this.props.logged) {
       window.location = '/'
     }
+    if(window.$('input#title, input#summary').length > 0) {
+      this.initCharacterCounter()
+    } else {
+      setTimeout(this.initCharacterCounter, 100)
+    }
   }
 
   componentDidUpdate() {
@@ -40,6 +45,10 @@ class PostEditor extends Component {
     const time = new Date().getTime()
     console.log('post editor unmounted ' + time)
     this.resetForm()
+  }
+
+  initCharacterCounter = () => {
+    window.$('input#title, input#summary').characterCounter()
   }
 
   setEditor = (editor) => {
@@ -103,63 +112,41 @@ class PostEditor extends Component {
   }
 
   render() {
-    const noTitle = <div className='input-field'>
-                      <input
-                        type='text'
-                        className='validate'
-                        name='title'
-                        value={ this.state.title }
-                        onChange={ this.onTextInputChange }
-                        placeholder='Title'
-                        maxlength='90'
-                        required
-                      />
-                      <label htmlFor='title'>Title</label>
-                    </div>
-
-    const hasTitle =  <div className='input-field'>
-                        <input
-                          type='text'
-                          className='validate'
-                          name='title'
-                          value={ this.state.title }
-                          onChange={ this.onTextInputChange }
-                          required
-                        />
-                      </div>
-
-    const noSummary = <div className='input-field'>
-                        <input
-                          type='text'
-                          className='validate'
-                          name='summary'
-                          value={ this.state.summary }
-                          onChange={ this.onTextInputChange }
-                          maxlength='138'
-                          placeholder='Summary'
-                        />
-                        <label htmlFor='summary'>Summary</label>
-                      </div>
-
-    const hasSummary =  <div className='input-field'>
-                          <input
-                            type='text'
-                            className='validate'
-                            name='summary'
-                            value={ this.state.summary }
-                            onChange={ this.onTextInputChange }
-                          />
-                        </div>
     return (
       <div className='container'>
         <div className='row'>
-          { (!this.props.location.post) && noTitle }
-          { (this.props.location.post) && hasTitle }
+          <div className='input-field'>
+            <input
+              type='text'
+              className='validate'
+              name='title'
+              id='title'
+              value={ this.state.title }
+              onChange={ this.onTextInputChange }
+              placeholder='Title'
+              data-length='90'
+              maxLength='90'
+              required
+            />
+            { (!this.props.location.post) && <label htmlFor='title'>Title</label> }
+          </div>
         </div>
 
         <div className='row'>
-          { (!this.props.location.post) && noSummary }
-          { (this.props.location.post) && hasSummary }
+          <div className='input-field'>
+            <input
+              type='text'
+              className='validate'
+              name='summary'
+              id='summary'
+              value={ this.state.summary }
+              onChange={ this.onTextInputChange }
+              data-length='138'
+              maxLength='138'
+              placeholder='Summary'
+            />
+            { (!this.props.location.post) && <label htmlFor='summary'>Summary</label> }
+          </div>
         </div>
 
         <div className='row'>

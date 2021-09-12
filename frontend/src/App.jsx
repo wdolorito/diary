@@ -269,6 +269,7 @@ class App extends Component {
           }
         }
         this.getPosts()
+        if(type === 'delete') window.location = '/'
       }
 
       const fail = (err) => {
