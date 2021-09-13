@@ -29,8 +29,7 @@ class SectionEditor extends Component {
     console.log('section editor updated ' + time)
     if(this.props.location.section) {
       if(this.state.ready) {
-        this.setState({ ready: false })
-        this.updateEditor()
+        this.setState({ ready: false }, this.updateEditor)
       }
     }
   }

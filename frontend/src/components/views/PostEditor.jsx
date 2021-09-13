@@ -35,8 +35,7 @@ class PostEditor extends Component {
     console.log('post editor updated ' + time)
     if(this.props.location.post) {
       if(this.state.ready) {
-        this.setState({ ready: false })
-        this.updateEditor()
+        this.setState({ ready: false }, this.updateEditor)
       }
     }
   }
