@@ -48,8 +48,13 @@ class Display extends Component {
   }
 
   handleDelete = () => {
-    const id = this.props.location.post._id
-    this.props.callPost('delete', null, id)
+    let id = null
+    if(this.props.location.post) {
+      id = this.props.location.post._id
+    } else {
+      id = this.props.lookUp[1]._id
+    }
+    if(id !== null) this.props.callPost('delete', null, id)
   }
 
   getPostByHash = (title) => {
