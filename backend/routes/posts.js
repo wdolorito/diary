@@ -102,8 +102,11 @@ module.exports = server => {
 
       if(summary === undefined) {
         summary = body.substring(0, 140).trim()
-        summary += ' ...'
+      } else {
+        summary = summary.substring(0, 140).trim()
       }
+
+      if(summary.length >= 139) summary += ' ...'
 
       let author
 
