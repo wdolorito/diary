@@ -25,6 +25,12 @@ server.pre(cors.actual)
 server.pre(restify.plugins.pre.userAgentConnection())
 server.pre(restify.plugins.pre.dedupeSlashes())
 
+server.use(restify.plugins.throttle({
+  burst:120,
+  rate:60,
+  ip:true
+}))
+
 server.listen(port, () => {
   mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
