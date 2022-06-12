@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 const timestamp = require('mongoose-timestamp')
 
 const LoginSchema = new mongoose.Schema({
@@ -17,5 +17,4 @@ const LoginSchema = new mongoose.Schema({
 
 LoginSchema.plugin(timestamp)
 
-const Login = mongoose.model('Login', LoginSchema, 'Login')
-module.exports = Login
+export default mongoose.models.Login || mongoose.model('Login', LoginSchema)

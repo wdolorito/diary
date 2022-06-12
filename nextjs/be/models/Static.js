@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 const timestamp = require('mongoose-timestamp')
 
 const StaticSchema = new mongoose.Schema({
@@ -17,5 +17,4 @@ const StaticSchema = new mongoose.Schema({
 
 StaticSchema.plugin(timestamp)
 
-const Static = mongoose.model('Static', StaticSchema, 'Static')
-module.exports = Static
+export default mongoose.models.Static || mongoose.model('Static', StaticSchema)

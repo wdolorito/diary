@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 const timestamp = require('mongoose-timestamp')
 
 const PostSchema = new mongoose.Schema({
@@ -39,5 +39,4 @@ const PostSchema = new mongoose.Schema({
 
 PostSchema.plugin(timestamp)
 
-const Post = mongoose.model('Post', PostSchema, 'Post')
-module.exports = Post
+export default mongoose.models.Post || mongoose.model('Post', PostSchema)
