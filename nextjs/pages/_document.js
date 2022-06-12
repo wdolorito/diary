@@ -6,6 +6,7 @@ export default function Document() {
 
       <Head>
         <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css' type='text/css' />
+        <link rel='icon' type='image/png' href='/project-management.png' />
       </Head>
 
       <body>

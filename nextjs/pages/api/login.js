@@ -6,5 +6,9 @@ export default async function handler(req, res) {
 
   await dbConnect()
 
-  res.status(200).json({ name: 'login' })
+  if(method === 'POST') {
+    res.status(200).json({ name: 'login' })
+  } else {
+    res.status(400).json({ response: 'Unsupported method.' })
+  }
 }
