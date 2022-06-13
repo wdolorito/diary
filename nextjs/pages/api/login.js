@@ -1,14 +1,36 @@
-import dbConnect from '../../be/dbConnect'
-import Login from '../../be/models/Login'
+import bauth from '../../be/bauth'
+import jwtutils from '../../be/jwtutils'
 
 export default async function handler(req, res) {
   const { method } = req
 
-  await dbConnect()
-
   if(method === 'POST') {
-    res.status(200).json({ name: 'login' })
+    const reqType = req.headers['content-type']
+    if(reqType !== 'application/json') {
+      return res.status(400).json({ response: 'Set us up the JSON.' })
+    }
+
+    const { email, password } = req.body
+
+    let user,
+        refresh
+
+    try {
+      user = await bauth(email, password)
+    } catch(err) {
+      return res.status(401).json({ response: 'Stop hacking. ' + err })
+    }
+
+    const token = jwtutils.genRefresh(user)
+
+    try {
+      refresh = await jwtutils.genToken()
+    } catch(err) {
+      return res.status(500).json({ response: 'Refresh broke. ' + err })
+    }
+
+    return res.status(200).send({ token, refresh })
   } else {
-    res.status(400).json({ response: 'Unsupported method.' })
+    return res.status(405).json({ response: 'Get that mess outta here.' })
   }
 }

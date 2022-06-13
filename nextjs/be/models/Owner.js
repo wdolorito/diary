@@ -37,4 +37,4 @@ const OwnerSchema = new mongoose.Schema({
 
 OwnerSchema.plugin(timestamp)
 
-export default mongoose.models.Owner || mongoose.model('Owner', OwnerSchema)
+export default mongoose.models.Owner || mongoose.model('Owner', OwnerSchema, 'Owner')

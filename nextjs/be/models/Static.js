@@ -17,4 +17,4 @@ const StaticSchema = new mongoose.Schema({
 
 StaticSchema.plugin(timestamp)
 
-export default mongoose.models.Static || mongoose.model('Static', StaticSchema)
+export default mongoose.models.Static || mongoose.model('Static', StaticSchema, 'Static')

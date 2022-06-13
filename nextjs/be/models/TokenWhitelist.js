@@ -15,4 +15,4 @@ const TokenWhitelistSchema = new mongoose.Schema({
 TokenWhitelistSchema.plugin(timestamp)
 TokenWhitelistSchema.index({ createdAt: 1 }, { expireAfterSeconds: expireTime })
 
-export default mongoose.models.TokenWhitelist || mongoose.model('TokenWhitelist', TokenWhitelistSchema)
+export default mongoose.models.TokenWhitelist || mongoose.model('TokenWhitelist', TokenWhitelistSchema, 'TokenWhitelist')

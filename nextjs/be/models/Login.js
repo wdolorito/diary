@@ -17,4 +17,4 @@ const LoginSchema = new mongoose.Schema({
 
 LoginSchema.plugin(timestamp)
 
-export default mongoose.models.Login || mongoose.model('Login', LoginSchema)
+export default mongoose.models.Login || mongoose.model('Login', LoginSchema, 'Login')
