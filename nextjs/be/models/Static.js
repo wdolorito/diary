@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-const timestamp = require('mongoose-timestamp')
 
 const StaticSchema = new mongoose.Schema({
   section: {
@@ -13,8 +12,7 @@ const StaticSchema = new mongoose.Schema({
     required: true,
     trim: true
   }
-})
-
-StaticSchema.plugin(timestamp)
+},
+{ timestamps: true })
 
 export default mongoose.models.Static || mongoose.model('Static', StaticSchema, 'Static')

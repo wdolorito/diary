@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-const timestamp = require('mongoose-timestamp')
 
 const OwnerSchema = new mongoose.Schema({
   owner: {
@@ -33,8 +32,7 @@ const OwnerSchema = new mongoose.Schema({
     required: false,
     trim: true
   }
-})
-
-OwnerSchema.plugin(timestamp)
+},
+{ timestamps: true })
 
 export default mongoose.models.Owner || mongoose.model('Owner', OwnerSchema, 'Owner')

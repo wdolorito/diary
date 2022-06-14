@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-const timestamp = require('mongoose-timestamp')
 const expireTime = 600 // (stored in seconds) Set to max time of jwt (10 minutes)
 
 const BlacklistSchema = new mongoose.Schema({
@@ -10,9 +9,9 @@ const BlacklistSchema = new mongoose.Schema({
     select: false,
     trim: true
   }
-})
+},
+{ timestamps: true })
 
-BlacklistSchema.plugin(timestamp)
 BlacklistSchema.index({ createdAt: 1 }, { expireAfterSeconds: expireTime })
 
 export default mongoose.models.Blacklist || mongoose.model('Blacklist', BlacklistSchema, 'Blacklist')

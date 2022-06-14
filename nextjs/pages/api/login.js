@@ -21,10 +21,10 @@ export default async function handler(req, res) {
       return res.status(401).json({ response: 'Stop hacking. ' + err })
     }
 
-    const token = jwtutils.genRefresh(user)
+    const token = jwtutils.genToken(user)
 
     try {
-      refresh = await jwtutils.genToken()
+      refresh = await jwtutils.genRefresh()
     } catch(err) {
       return res.status(500).json({ response: 'Refresh broke. ' + err })
     }

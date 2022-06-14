@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-const timestamp = require('mongoose-timestamp')
 
 const LoginSchema = new mongoose.Schema({
   email: {
@@ -13,8 +12,7 @@ const LoginSchema = new mongoose.Schema({
     select: false,
     required: true
   }
-})
-
-LoginSchema.plugin(timestamp)
+},
+{ timestamps: true })
 
 export default mongoose.models.Login || mongoose.model('Login', LoginSchema, 'Login')

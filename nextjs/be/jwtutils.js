@@ -20,7 +20,7 @@ const isExpired = bearer => {
         res(false)
       }
     } catch(err) {
-      rej('Unable to determine token state.')
+      rej('Unable to determine jwt state.')
     }
   })
 }
@@ -35,7 +35,7 @@ const blacklistJwt = bearer => {
       await resp.save()
       res(resp)
     } catch(err) {
-      rej('Unable to blacklist token.')
+      rej('Unable to blacklist jwt.')
     }
   })
 }
@@ -52,7 +52,7 @@ const tokenIsExpired = token => {
         res(true)
       }
     } catch(err) {
-      rej('Unable to determine token expiration.')
+      rej('Unable to determine refresh token expiration. ' + token)
     }
   })
 }
@@ -61,16 +61,17 @@ const removeToken = token => {
   return new Promise(async (res, rej) => {
     await dbConnect()
 
-    try {
-      const resp = await TokenWhitelist.deleteOne({ token })
-      res(resp)
-    } catch(err) {
-      rej('Unable to remove token.')
+    const resp = await TokenWhitelist.deleteOne({ token })
+    const { deletedCount } = resp
+    if(deletedCount) {
+      res(deletedCount)
+    } else {
+      rej('I can haz refresh token?')
     }
   })
 }
 
-const genToken = async () => {
+const genRefresh = async () => {
   const refresh = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
     return v.toString(16)
@@ -82,7 +83,7 @@ const genToken = async () => {
   return refresh
 }
 
-const genRefresh = data => {
+const genToken = data => {
   return jwt.sign(data.toJSON(), process.env.APP_SECRET, { expiresIn: '10m' })
 }
 

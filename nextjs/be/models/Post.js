@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-const timestamp = require('mongoose-timestamp')
 
 const PostSchema = new mongoose.Schema({
   owner: {
@@ -35,8 +34,7 @@ const PostSchema = new mongoose.Schema({
     required: true,
     trim: true
   }
-})
-
-PostSchema.plugin(timestamp)
+},
+{ timestamps: true })
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema, 'Post')
