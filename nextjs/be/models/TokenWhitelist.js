@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-const expireTime = 604800 // (stored in seconds) Set to max time of jwt (1 week, 86400 minutes)
+const expireTime = 604800 // (stored in seconds) Set to max time of refresh token (1 week, 86400 minutes)
 
 const TokenWhitelistSchema = new mongoose.Schema({
   token: {
