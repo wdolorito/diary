@@ -16,12 +16,12 @@ export default async function handler(req, res) {
         refresh
 
     try {
-      user = await bauth(email, password)
+      user = (await bauth(email, password)).email
     } catch(err) {
       return res.status(401).json({ response: 'Stop hacking. ' + err })
     }
 
-    const token = jwtutils.genToken(user)
+    const token = jwtutils.genToken({ email: user })
 
     try {
       refresh = await jwtutils.genRefresh()

@@ -1,7 +1,21 @@
 const jwt = require('jsonwebtoken')
 import dbConnect from './dbConnect'
 import Blacklist from './models/Blacklist'
+import Login from './models/Login'
 import TokenWhitelist from './models/TokenWhitelist'
+
+const getUser = () => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    await Login.find({})
+               .sort({ "createdAt": -1 })
+               .exec((err, users) => {
+                 if(err) rej('No one here. ' + err)
+                 res(users[0].email)
+               })
+  })
+}
 
 const getToken = bearer => {
   return bearer.split(' ')[1]
@@ -11,16 +25,12 @@ const isExpired = bearer => {
   return new Promise(async (res, rej) => {
     await dbConnect()
 
-    try {
-      const token = getToken(bearer)
-      const exists = await Blacklist.find({ token })
-      if(exists.length) {
-        res(true)
-      } else {
-        res(false)
-      }
-    } catch(err) {
-      rej('Unable to determine jwt state.')
+    const token = getToken(bearer)
+    const exists = await Blacklist.findOne({ token })
+    if(exists.length) {
+      rej(true)
+    } else {
+      res(false)
     }
   })
 }
@@ -44,15 +54,11 @@ const tokenIsExpired = token => {
   return new Promise(async (res, rej) => {
     await dbConnect()
 
-    try {
-      const exists = await TokenWhitelist.find({ token })
-      if(exists.length) {
-        res(false)
-      } else {
-        res(true)
-      }
-    } catch(err) {
-      rej('Unable to determine refresh token expiration. ' + token)
+    const exists = await TokenWhitelist.findOne({ token })
+    if(exists === null) {
+      rej(true)
+    } else {
+      res(false)
     }
   })
 }
@@ -84,10 +90,11 @@ const genRefresh = async () => {
 }
 
 const genToken = data => {
-  return jwt.sign(data.toJSON(), process.env.APP_SECRET, { expiresIn: '10m' })
+  return jwt.sign(data, process.env.APP_SECRET, { expiresIn: '10m' })
 }
 
 const jwtutils = {
+                   getUser,
                    isExpired,
                    blacklistJwt,
                    tokenIsExpired,
