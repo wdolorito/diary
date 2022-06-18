@@ -110,13 +110,45 @@ const createStatic = (section, body) => {
   })
 }
 
+const getPostByHash = titleHash => {
+  return new Promise(async (res, rej) => {
+    try {
+      await dbConnect()
+
+      const result = await Post.findOne({ titleHash })
+                                .select('-__v')
+                                .select('-owner')
+      res(result)
+    } catch(err) {
+      rej(titleHash + ' find failed')
+    }
+  })
+}
+
+const getStatic = section => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    try {
+      const result = await Static.findOne({ section })
+                                  .select('-_id')
+                                  .select('-__v')
+      res(result)
+    } catch(err) {
+      rej(err)
+    }
+  })
+}
+
 const postutils = {
                    getAuthor,
                    getAuthorId,
                    getFriendlyURL,
                    getTitleHash,
                    createPost,
-                   createStatic
+                   createStatic,
+                   getPostByHash,
+                   getStatic
                   }
 
 export default postutils
