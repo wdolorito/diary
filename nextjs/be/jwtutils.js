@@ -18,7 +18,11 @@ const getUser = () => {
 }
 
 const getToken = bearer => {
-  return bearer.split(' ')[1]
+  if(bearer) {
+    const auth = bearer.split(' ')[1]
+    return auth
+  }
+  return null
 }
 
 const isExpired = bearer => {
@@ -26,12 +30,16 @@ const isExpired = bearer => {
     await dbConnect()
 
     const token = getToken(bearer)
-    const exists = await Blacklist.findOne({ token })
-    if(exists.length) {
-      rej(true)
-    } else {
-      res(false)
+
+    try {
+      jwt.verify(token, process.env.APP_SECRET)
+    } catch(err) {
+      rej(err)
     }
+
+    const exists = await Blacklist.findOne({ token })
+    if(exists === null) res(false)
+    rej(true)
   })
 }
 
