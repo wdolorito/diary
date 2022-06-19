@@ -14,6 +14,7 @@ export default function Home() {
         src='https://picsum.photos/640/480'
         width='640'
         height='480'
+        alt='a random image'
       />
     </>
   )
