@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     if(title) {
       try {
         const post = postutils.createPost(title, summary, body)
-        return res.status(200).send(post)
+        return res.status(201).send(post)
       } catch(err) {
         return res.status(400).json({ response: err })
       }
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     if(section) {
       try {
         const page = postutils.createStatic(section, body)
-        return res.status(200).send(page)
+        return res.status(201).send(page)
       } catch(err) {
         return res.status(400).json({ response: err })
       }

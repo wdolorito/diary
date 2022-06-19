@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     try {
       await jwtutils.tokenIsExpired(token)
     } catch(err) {
-      return res.status(500).json({ response: 'That token is way too old.' })
+      return res.status(401).json({ response: 'That token is way too old.' })
     }
     
     try {

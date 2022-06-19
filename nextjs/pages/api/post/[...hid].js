@@ -40,7 +40,11 @@ export default async function handler(req, res) {
     if(titleHash === 'static') {
       try {
         const page = await postutils.getStatic(section)
-        if(page) return res.status(200).send(page)
+        if(page) {
+          return res.status(200).send(page)
+        } else {
+          return res.status(204).end()
+        }
       } catch(err) {
         return res.status(500).json({ response: err })
       }
@@ -119,5 +123,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(406).json({ response: "You can't milk those!"})
+  return res.status(405).json({ response: 'Get that mess outta here.' })
 }

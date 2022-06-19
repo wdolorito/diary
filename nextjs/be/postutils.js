@@ -17,7 +17,7 @@ const getAuthor = () => {
                                 .sort({ "createdAt": 1 })
       res(author)
     } catch(err) {
-      rej('author lookup failed')
+      rej('author lookup failed ' + err)
     }
   }
 )}
@@ -31,7 +31,7 @@ const getAuthorId = () => {
                                 .sort({ "createdAt": 1 })
       res(author[0]._id)
     } catch(err) {
-      rej(new errors.InternalError('authorId lookup failed'))
+      rej('authorId lookup failed ' + err)
     }
 })
 }
@@ -71,7 +71,7 @@ const createPost = (title, summary, body) => {
     try {
       author = await getAuthorForPost()
     } catch(err) {
-      rej('The author has left the building.')
+      rej('The author has left the building. ' + err)
     }
 
     const post = new Post({
@@ -87,7 +87,7 @@ const createPost = (title, summary, body) => {
       await post.save()
       res(friendlyURL + ' saved')
     } catch(err) {
-      rej('unable to post')
+      rej('unable to post ' + err)
     }
   })
 }
@@ -105,7 +105,7 @@ const createStatic = (section, body) => {
       await page.save()
       res(section + ' saved')
     } catch(err) {
-      rej('unable to post')
+      rej('unable to post ' + err)
     }
   })
 }
@@ -120,7 +120,7 @@ const getPost = titleHash => {
                                 .select('-owner')
       res(result)
     } catch(err) {
-      rej(titleHash + ' find failed')
+      rej(titleHash + ' find failed ' + err)
     }
   })
 }
@@ -148,7 +148,7 @@ const updatePost = (_id, set) => {
       await Post.findOneAndUpdate({ _id }, { $set: set })
       res(true)
     } catch(err) {
-      rej('Unable to update post ' + _id)
+      rej('Unable to update post ' + _id + ' ' + err)
     }
   })
 }
@@ -161,7 +161,7 @@ const updateStatic = (section, set) => {
       await Static.findOneAndUpdate({ section }, { $set: set })
       res(true)
     } catch(err) {
-      rej('Unable to update ' + section + ' section')
+      rej('Unable to update ' + section + ' section ' + err)
     }
   })
 }
@@ -174,7 +174,23 @@ const deletePost = _id => {
       await Post.findOneAndDelete({ _id })
       res(true)
     } catch(err) {
-      rej('Unable to delete post ' + _id)
+      rej('Unable to delete post ' + _id + ' ' + err)
+    }
+  })
+}
+
+const getPosts = () => {
+  return new Promise(async (res, rej) => {
+    try {
+      await dbConnect()
+
+      const results = await Post.find({})
+                                .select('-__v')
+                                .select('-owner')
+                                .sort({ "updatedAt": -1 })
+      res(results)
+    } catch(err) {
+      rej(err)
     }
   })
 }
@@ -190,7 +206,8 @@ const postutils = {
                    getStatic,
                    updatePost,
                    updateStatic,
-                   deletePost
+                   deletePost,
+                   getPosts
                   }
 
 export default postutils
