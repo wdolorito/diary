@@ -1,21 +1,38 @@
 import Head from 'next/head'
-import Image from 'next/image'
 
-export default function Home() {
-  return (
-    <>
-      <Head>
-        <title>William Dolorito's Blog</title>
-        <meta name="description" content="William Dolorito's musings" />
-      </Head>
+import Empty from '../layout/empty'
 
-      <h1>Main Page</h1>
-      <Image
-        src='https://picsum.photos/640/480'
-        width='640'
-        height='480'
-        alt='a random image'
-      />
-    </>
-  )
+export async function getServerSideProps(context) {
+  const { section } = context.query
+  const res = await fetch(`http://localhost:3000/api/posts`)
+  const response = await res
+  if(response.status === 204) {
+    const data = {}
+    return {
+      props: { data }
+    }
+  }
+
+  const data = await response.json()
+
+  return {
+    props: { data }
+  }
+}
+
+export default function Home(props) {
+  const { data } = props
+
+  if(data.length === undefined) {
+    return (
+      <>
+        <Head>
+          <title>William Dolorito's Blog</title>
+          <meta name="description" content="William Dolorito's musings" />
+        </Head>
+
+        <Empty />
+      </>
+    )
+  }
 }
