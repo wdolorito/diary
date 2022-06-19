@@ -22,8 +22,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ response: 'Stop being tricky. ' + err })
     }
 
-    let email,
-        refresh
+    let email
 
     try {
       email = await jwtutils.getUser()
@@ -34,13 +33,12 @@ export default async function handler(req, res) {
     const newjwt = jwtutils.genToken({ email })
 
     try {
-      refresh = await jwtutils.genRefresh()
+      const refresh = await jwtutils.genRefresh()
+      return res.status(200).send({ token: newjwt, refresh })
     } catch(err) {
       return res.status(500).json({ response: 'Refresh broke. ' + err })
     }
-
-    return res.status(200).send({ token: newjwt, refresh })
-  } else {
-    return res.status(405).json({ response: 'Get that mess outta here.' })
   }
+  
+  return res.status(405).json({ response: 'Get that mess outta here.' })
 }

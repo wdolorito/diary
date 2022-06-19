@@ -4,6 +4,8 @@ import Blacklist from './models/Blacklist'
 import Login from './models/Login'
 import TokenWhitelist from './models/TokenWhitelist'
 
+const expiresIn = '10m'
+
 const getUser = () => {
   return new Promise(async (res, rej) => {
     await dbConnect()
@@ -86,19 +88,27 @@ const removeToken = token => {
 }
 
 const genRefresh = async () => {
-  const refresh = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
-    return v.toString(16)
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    const refresh = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
+      return v.toString(16)
+    })
+
+  try {
+    const tokenwhitelist = new TokenWhitelist({ token: refresh })
+    await tokenwhitelist.save()
+  
+    res(refresh)
+  } catch(err) {
+    rej(err)
+  }
   })
-
-  const tokenwhitelist = new TokenWhitelist({ token: refresh })
-  await tokenwhitelist.save()
-
-  return refresh
 }
 
 const genToken = data => {
-  return jwt.sign(data, process.env.APP_SECRET, { expiresIn: '10m' })
+  return jwt.sign(data, process.env.APP_SECRET, { expiresIn })
 }
 
 const jwtutils = {

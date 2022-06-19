@@ -110,7 +110,7 @@ const createStatic = (section, body) => {
   })
 }
 
-const getPostByHash = titleHash => {
+const getPost = titleHash => {
   return new Promise(async (res, rej) => {
     try {
       await dbConnect()
@@ -140,6 +140,45 @@ const getStatic = section => {
   })
 }
 
+const updatePost = (_id, set) => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    try {
+      await Post.findOneAndUpdate({ _id }, { $set: set })
+      res(true)
+    } catch(err) {
+      rej('Unable to update post ' + _id)
+    }
+  })
+}
+
+const updateStatic = (section, set) => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    try {
+      await Static.findOneAndUpdate({ section }, { $set: set })
+      res(true)
+    } catch(err) {
+      rej('Unable to update ' + section + ' section')
+    }
+  })
+}
+
+const deletePost = _id => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    try {
+      await Post.findOneAndDelete({ _id })
+      res(true)
+    } catch(err) {
+      rej('Unable to delete post ' + _id)
+    }
+  })
+}
+
 const postutils = {
                    getAuthor,
                    getAuthorId,
@@ -147,8 +186,11 @@ const postutils = {
                    getTitleHash,
                    createPost,
                    createStatic,
-                   getPostByHash,
-                   getStatic
+                   getPost,
+                   getStatic,
+                   updatePost,
+                   updateStatic,
+                   deletePost
                   }
 
 export default postutils

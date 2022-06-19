@@ -38,7 +38,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ response: err })
       }
     }
-  } else {
-    return res.status(405).json({ response: 'Get that mess outta here.' })
   }
+  
+  return res.status(405).json({ response: 'Get that mess outta here.' })
 }
