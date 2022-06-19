@@ -9,7 +9,7 @@ export default function Home() {
         <meta name="description" content="William Dolorito's musings" />
       </Head>
 
-      <h1>hello world!</h1>
+      <h1>Main Page</h1>
       <Image
         src='https://picsum.photos/640/480'
         width='640'

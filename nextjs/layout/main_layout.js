@@ -1,6 +1,9 @@
 import Head from 'next/head'
 import Script from 'next/script'
 
+import Header from './header'
+import Footer from './footer'
+
 export default function Layout({ children }) {
   return (
     <div className='container'>
@@ -10,7 +13,11 @@ export default function Layout({ children }) {
         <meta name='viewport' content='width=device-width,initial-scale=1' />
       </Head>
 
+      <Header />
+
       <main>{ children }</main>
+
+      <Footer />
 
       <Script
         src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'
