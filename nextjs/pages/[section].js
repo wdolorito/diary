@@ -6,10 +6,7 @@ export async function getServerSideProps(context) {
   const response = await res
   if(response.status === 204) {
     return {
-      redirect: {
-        permanent: false,
-        destination: `/404`
-      }
+      notFound: true
     }
   }
 

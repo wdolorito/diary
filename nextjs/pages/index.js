@@ -3,7 +3,6 @@ import Head from 'next/head'
 import Empty from '../layout/empty'
 
 export async function getServerSideProps(context) {
-  const { section } = context.query
   const res = await fetch(`http://localhost:3000/api/posts`)
   const response = await res
   if(response.status === 204) {
