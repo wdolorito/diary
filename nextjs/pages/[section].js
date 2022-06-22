@@ -13,7 +13,15 @@ export async function getServerSideProps(context) {
   const data = await response.json()
 
   const { body } = data
-  const title = data.section
+
+  const sTitle = data.section
+  const title = sTitle.toLowerCase()
+                      .split(' ')
+                      .map(word => {
+                        return word[0].toUpperCase() + word.substr(1)
+                      })
+                      .join(' ')
+
   
   return {
     props: { title, body }
