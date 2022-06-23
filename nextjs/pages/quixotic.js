@@ -33,9 +33,7 @@ export default function Home() {
     if(token != null && !logged) {
       doRefresh()
     }
-    if(logged) {
-      router.push('/employees')
-    }
+    if(logged) router.push('/')
   },[logged])
 
   return (
@@ -44,49 +42,27 @@ export default function Home() {
         <title>Login</title>
       </Head>
 
-      <h4 className='center-align'>Login to edit</h4>
-      <div className='row'>
-        <form className='col s12' onSubmit={ submitHandler }>
-          <div className='row'>
-            <div className='col s3'></div>
-            <div className='input-field col s6'>
-              <input
-                id='email'
-                type='email'
-                className='validate'
-                name='email'
-                value={ email }
-                onChange={ handleInput }
-                required
-              />
-              <label htmlFor='email'>Email</label>
-            </div>
-            <div className='col s3'></div>
-          </div>
-          <div className='row'>
-            <div className='col s3'></div>
-            <div className='input-field col s6 '>
-              <input
-                id='password'
-                type='password'
-                className='validate'
-                name='password'
-                value={ password }
-                onChange={ handleInput }
-                required
-              />
-              <label htmlFor='password'>Password</label>
-            </div>
-            <div className='col s3'></div>
-          </div>
-          <div className='row'>
-            <div className='col s3' />
-            <div className='col s6'>
+
+      <h4 className='text-center'>Login here</h4>
+
+      <div className='container'>
+        <div className='row'>
+          <div className='col-sm' />
+          <div className='col-sm'>
+            <form onSubmit={ submitHandler }>
+              <div className='form-group'>
+                <label htmlFor='exampleInputEmail1'>Email address</label>
+                <input type='email' className='form-control' id='email' value={ email } onChange={ handleInput } required />
+              </div>
+              <div className='form-group'>
+                <label htmlFor='password'>Password</label>
+                <input type='password' className='form-control' id='password' value={ password } onChange={ handleInput } required />
+              </div>
               <Submit />
-            </div>
-            <div className='col s3' />
+            </form>
           </div>
-        </form>
+          <div className='col-sm' />
+        </div>
       </div>
     </>
   )

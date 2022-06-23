@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react'
 import { useRouter } from 'next/router'
+import { createContext, useContext, useState } from 'react'
 
 import NetworkContext from './network_context'
 
@@ -49,7 +49,7 @@ const AuthProvider = props => {
         setJwt(res.data.token)
         setLogged(true)
         storeToken(res.data.refresh)
-        router.push('/employees')
+        router.push('/')
       }
     }
 
@@ -65,7 +65,7 @@ const AuthProvider = props => {
     const headers = getAuthorization()
     const refresh = getToken()
     if(refresh) {
-      const data = { refresh }
+      const data = { token: refresh }
       const config = {
         method: 'post',
         url: refreshLink,
@@ -74,7 +74,8 @@ const AuthProvider = props => {
       }
 
       const success = res => {
-        if(res.status === 200) {
+        const { status } = res
+        if(status === 200) {
           setJwt(res.data.token)
           setLogged(true)
           storeToken(res.data.refresh)
