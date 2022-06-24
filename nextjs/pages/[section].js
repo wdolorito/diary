@@ -2,9 +2,9 @@ import Head from 'next/head'
 
 export async function getServerSideProps(context) {
   const { section } = context.query
-  const res = await fetch(`http://localhost:3000/api/post/static/` + section)
+  const res = await fetch(process.env.NEXT_PUBLIC_POSTLINK + '/static/' + section)
   const response = await res
-  if(response.status === 204) {
+  if(response.status !== 200) {
     return {
       notFound: true
     }

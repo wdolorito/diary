@@ -1,6 +1,7 @@
 import Head from 'next/head'
 
-import Empty from '../layout/empty'
+import Empty from '../components/empty'
+import Posts from '../components/post'
 
 export async function getServerSideProps(context) {
   const res = await fetch(`http://localhost:3000/api/posts`)
@@ -34,4 +35,15 @@ export default function Home(props) {
       </>
     )
   }
+
+  return (
+    <>
+        <Head>
+          <title>William Dolorito's Blog</title>
+          <meta name="description" content="William Dolorito's musings" />
+        </Head>
+
+        <Posts data={ data } />
+    </>
+  )
 }

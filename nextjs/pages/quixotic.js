@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 
 import AuthContext from '../context/auth_context'
-import Submit from '../layout/submit'
+import Submit from '../components/submit'
 
 export default function Home() {
   const { getToken,
