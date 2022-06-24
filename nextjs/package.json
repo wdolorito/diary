@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^34.1.0",
+    "@ckeditor/ckeditor5-react": "^5.0.2",
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^8.5.1",
