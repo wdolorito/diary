@@ -1,7 +1,9 @@
-export async function getServerSideProps(context) {
-  const { props } = context.query
+import Head from 'next/head'
 
-  if(props === undefined ) {
+export async function getServerSideProps(context) {
+  const props = context.query
+
+  if(props.length === undefined ) {
     return { notFound: true }
   } else {
     return { props }
@@ -13,7 +15,11 @@ export default function Post(props) {
 
   return (
     <>
-      <h1>{ post.title }</h1>
+      <Head>
+        <title>{ post.title }</title>
+      </Head>
+
+      <h1>{ post.body }</h1>
     </>
   )
 }
