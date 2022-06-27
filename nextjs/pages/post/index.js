@@ -1,9 +1,12 @@
 import Head from 'next/head'
-import { useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { useContext, useEffect } from 'react'
 
 import AuthContext from '../../context/auth_context'
 import PostContext from '../../context/post_context'
 import Avatar from '../../components/avatar'
+import Delete from '../../components/delete'
+import Edit from '../../components/edit'
 import Empty from '../../components/empty'
 
 export async function getServerSideProps(context) {
@@ -21,6 +24,16 @@ export default function Post(props) {
   const { titleHash } = props
   const { callPost, post, postReady } = useContext(PostContext)
   const { logged } = useContext(AuthContext)
+  const router = useRouter()
+
+  const btnAction = (e) => {
+    e.preventDefault()
+
+    const { name } = e.target
+
+    if(name === 'delete') router.push('/post/edit')
+    if(name === 'edit') router.push('/post/edit')
+  }
 
   useEffect(() => {
     callPost('get', {}, titleHash)
@@ -49,46 +62,57 @@ export default function Post(props) {
   
         <h2 >{ title }</h2>
 
-        <blockquote><h6><em>{ summary }</em></h6></blockquote>
+        <p><em>{ summary }</em></p>
 
         <div className='row align-items-center'>
-            <div className='col col-1' />
-            <div className='col col-6'>
-              <h5>by { firstName } { middleName } { lastName }</h5>
-            </div>
-            <div className='col col-5'>
-              <Avatar
-                key={ handle }
-                avatar={ avatar }
-                handle={ handle }
-              />
-            </div>
+          <div className='col col-1'>
+            <Avatar
+              key={ handle }
+              avatar={ avatar }
+              handle={ handle }
+            />
+          </div>
+          <div className='col'>
+            <h5>by { firstName } { middleName } { lastName }</h5>
+          </div>
         </div>
 
-        <blockquote>
+        <div className='row mt-3'>
+          <div className='col col-1 text-right'>
+            <strong><em>created:</em></strong>
+          </div>
+          <div className='col col-11'>
+            <strong>{ dispCreatedAt }</strong>
+          </div>
+        </div>
+        { (updatedAt !== createdAt ) &&
           <div className='row'>
-            <div className='col col-2 text-right'>
-              created:
+            <div className='col col-1 text-right'>
+              <strong><em>updated:</em></strong>
             </div>
-            <div className='col col-10'>
-              { dispCreatedAt }
+            <div className='col col-11'>
+              <strong>{ dispUpdatedAt }</strong>
             </div>
           </div>
-          { (updatedAt !== createdAt ) &&
-            <div className='row'>
-              <div className='col col-2 text-right'>
-                updated:
-              </div>
-              <div className='col col-10'>
-                { dispUpdatedAt }
-              </div>
-            </div>
-          }
-        </blockquote>
+        }
 
-        <div className='row'>
-          <div dangerouslySetInnerHTML={{ __html: body }} />
+        <div className='row mt-5'>
+          <div className='col'>
+            <div dangerouslySetInnerHTML={{ __html: body }} />
+          </div>
         </div>
+
+        { logged &&
+          <div className='row'>
+            <div className='col text-center'>
+              <Delete action={ btnAction } name='post' />
+            </div>
+            <div className='col text-center'>
+              <Edit action={ btnAction } name='post'/>
+            </div>
+          </div>
+        }
+
       </>
     )
   }

@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ response: 'Set us up the JSON.' })
     }
 
-    let id, section
+    let id = hid, section
     if(hid.length > 1) {
       id = hid[0]
       section = hid[1]
@@ -77,8 +77,8 @@ export default async function handler(req, res) {
     if(id !== 'static') {
       if(title) {
         set.title = title
-        set.friendlyURL = createFriendlyURL(title)
-        set.titleHash = createTitleHash(set.friendlyURL)
+        set.friendlyURL = postutils.getFriendlyURL(title)
+        set.titleHash = postutils.getTitleHash(set.friendlyURL)
 
         if(body !== undefined && summary === undefined) summary = body.substring(0, 140).trim()
 

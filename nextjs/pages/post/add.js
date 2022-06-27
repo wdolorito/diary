@@ -40,10 +40,11 @@ export default function PostAdd() {
       payload.summary = body.replace(/<[^>]+>/g, '')
     }
     callPost('post', payload)
+    router.push('/')
   }
 
   useEffect(() => {
-    if(!logged) console.log('need to verify for network calls')
+    if(!logged) router.push('/')
   },[logged])
 
   return (
