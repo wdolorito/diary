@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { useEffect } from 'react'
 
 export async function getServerSideProps(context) {
   const { section } = context.query
@@ -30,6 +31,10 @@ export async function getServerSideProps(context) {
 
 export default function Section(props) {
   const { title, body } = props
+
+  useEffect(() => {
+    console.log('in catchall')
+  },[])
 
   return (
     <>

@@ -1,29 +1,18 @@
 import Head from 'next/head'
+import { useContext, useEffect } from 'react'
 
+import PostContext from '../context/post_context'
 import Empty from '../components/empty'
-import Posts from '../components/post'
+import Posts from '../components/posts'
 
-export async function getServerSideProps(context) {
-  const res = await fetch(`http://localhost:3000/api/posts`)
-  const response = await res
-  if(response.status === 204) {
-    const data = {}
-    return {
-      props: { data }
-    }
-  }
+export default function Home() {
+  const { getPosts, posts } = useContext(PostContext)
 
-  const data = await response.json()
+  useEffect(() => {
+    getPosts()
+  },[])
 
-  return {
-    props: { data }
-  }
-}
-
-export default function Home(props) {
-  const { data } = props
-
-  if(data.length === undefined) {
+  if(posts.length === 0) {
     return (
       <>
         <Head>
@@ -38,12 +27,12 @@ export default function Home(props) {
 
   return (
     <>
-        <Head>
-          <title>William Dolorito's Blog</title>
-          <meta name="description" content="William Dolorito's musings" />
-        </Head>
+      <Head>
+        <title>William Dolorito's Blog</title>
+        <meta name="description" content="William Dolorito's musings" />
+      </Head>
 
-        <Posts data={ data } />
+      <Posts data={ posts } />
     </>
   )
 }

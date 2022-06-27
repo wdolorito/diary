@@ -14,12 +14,12 @@ export default async function handler(req, res) {
 
     const length = posts.length
     if(length > 0) {
-      for(count = 0; count < length; count++) {
+      for(let count = 0; count < length; count++) {
         tosend.push(posts[count])
       }
 
       try {
-        const author = await getAuthor()
+        const author = await postutils.getAuthor()
         tosend.splice(0, 0, author[0])
         return res.status(200).send(tosend)
       } catch(err) {

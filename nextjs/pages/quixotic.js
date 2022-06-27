@@ -6,8 +6,7 @@ import AuthContext from '../context/auth_context'
 import Submit from '../components/submit'
 
 export default function Home() {
-  const { getToken,
-          logged,
+  const { logged,
           doLogin,
           doRefresh } = useContext(AuthContext)
 
@@ -29,8 +28,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const token = getToken()
-    if(token != null && !logged) {
+    if(!logged) {
       doRefresh()
     }
     if(logged) router.push('/')
@@ -51,7 +49,7 @@ export default function Home() {
           <div className='col-sm'>
             <form onSubmit={ submitHandler }>
               <div className='form-group'>
-                <label htmlFor='exampleInputEmail1'>Email address</label>
+                <label htmlFor='email'>Email address</label>
                 <input type='email' className='form-control' id='email' value={ email } onChange={ handleInput } required />
               </div>
               <div className='form-group'>

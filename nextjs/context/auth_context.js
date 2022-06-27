@@ -46,9 +46,10 @@ const AuthProvider = props => {
 
     const success = res => {
       if(res.status === 200) {
-        setJwt(res.data.token)
+        const { token, refresh } = res.data
+        setJwt(token)
         setLogged(true)
-        storeToken(res.data.refresh)
+        storeToken(refresh)
         router.push('/')
       }
     }
@@ -76,9 +77,10 @@ const AuthProvider = props => {
       const success = res => {
         const { status } = res
         if(status === 200) {
-          setJwt(res.data.token)
+          const { token, refresh } = res.data
+          setJwt(token)
           setLogged(true)
-          storeToken(res.data.refresh)
+          storeToken(refresh)
         }
       }
 
@@ -112,8 +114,7 @@ const AuthProvider = props => {
     doLogin,
     doRefresh,
     doLogout,
-    getAuthorization,
-    getToken
+    getAuthorization
   }
 
   return (

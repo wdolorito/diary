@@ -18,3 +18,4 @@ export default function Posts(props) {
     </div>
   )
 }
+

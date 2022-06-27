@@ -53,8 +53,8 @@ const createPost = (title, summary, body) => {
     await dbConnect()
 
     if(title.length > 90) title = title.substring(0, 90).trim()
-    const friendlyURL = createFriendlyURL(title)
-    const titleHash = createTitleHash(friendlyURL)
+    const friendlyURL = getFriendlyURL(title)
+    const titleHash = getTitleHash(friendlyURL)
 
     let sum = summary
 
@@ -69,7 +69,7 @@ const createPost = (title, summary, body) => {
     let author
 
     try {
-      author = await getAuthorForPost()
+      author = await getAuthorId()
     } catch(err) {
       rej('The author has left the building. ' + err)
     }

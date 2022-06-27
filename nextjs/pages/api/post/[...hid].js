@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const { hid } = req.query
 
   if(method === 'GET') {
-    let titleHash, section
+    let titleHash = hid, section
     if(hid.length > 1) {
       titleHash = hid[0]
       section = hid[1]
