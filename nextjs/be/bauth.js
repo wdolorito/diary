@@ -18,7 +18,7 @@ const bauth = (email, password) => {
       bcrypt.compare(password, user.password, async (err, isMatch) => {
         if(err) throw err
         if(!isMatch) rej('Check your password.')
-        const toSend = await Login.findOne({ email }).select(['-_id', '-updatedAt', '-createdAt', '-__v'])
+        const toSend = await Login.findOne({ email }).select('-_id -updatedAt -createdAt')
         res(toSend)
       })
     } catch(err) {

@@ -1,16 +1,73 @@
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useContext, useEffect, useState } from 'react'
 
-const Editor = dynamic(() => import("../../components/editor"), { ssr: false })
+import AuthContext from '../../context/auth_context'
+import PostContext from '../../context/post_context'
+import Submit from '../../components/submit'
+
+const Editor = dynamic(() => import('../../components/editor'), { ssr: false })
 
 export default function SectionAdd() {
+  const { logged } = useContext(AuthContext)
+  const { callPost } = useContext(PostContext)
+  const [ section, setSection ] = useState('')
+  const [ body, setBody ] = useState('<p>Add section</p>')
+  const router = useRouter()
+
+  const handleInput = e => {
+    const { id, value } = e.target
+
+    if(id === 'section') setSection(value)
+  }
+
+  const handleEditor = data => {
+    setBody(data)
+  }
+
+  const submitHandler = e => {
+    e.preventDefault()
+    const payload = {}
+
+    payload.section = section
+    payload.body = body
+
+    callPost('post', payload)
+    router.push('/')
+  }
+
+  useEffect(() => {
+    if(!logged) router.push('/')
+  },[logged])
+
   return (
     <>
       <Head>
         <title>Add Section</title>
       </Head>
 
-      <Editor data='Add section' />
+      <h4 className='text-center'>Add Section</h4>
+
+      <div className='container'>
+        <div className='row'>
+          <div className='col col-2' />
+          <div className='col col-8'>
+            <form onSubmit={ submitHandler }>
+              <div className='form-group'>
+                <label htmlFor='section'>Section</label>
+                <input type='text' className='form-control' id='section' value={ section } onChange={ handleInput } required />
+              </div>
+              <div className='form-group'>
+                <small id='editor-help' className='form-text text-muted'>Be sure to add a heading.</small>
+                <Editor data={ body } getData={ handleEditor }/>
+              </div>
+              <Submit />
+            </form>
+          </div>
+          <div className='col col-2' />
+        </div>
+      </div>
     </>
   )
 }

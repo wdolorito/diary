@@ -60,11 +60,11 @@ export default function Post(props) {
           <title>{ title }</title>
         </Head>
   
-        <h2 >{ title }</h2>
+        <h2 className='text-center'>{ title }</h2>
 
-        <p><em>{ summary }</em></p>
+        <p className='mt-3'><em>{ summary }</em></p>
 
-        <div className='row align-items-center'>
+        <div className='row align-items-center mt-5'>
           <div className='col col-1'>
             <Avatar
               key={ handle }
@@ -77,7 +77,7 @@ export default function Post(props) {
           </div>
         </div>
 
-        <div className='row mt-3'>
+        <div className='row mt-4'>
           <div className='col col-1 text-right'>
             <strong><em>created:</em></strong>
           </div>
@@ -112,7 +112,6 @@ export default function Post(props) {
             </div>
           </div>
         }
-
       </>
     )
   }

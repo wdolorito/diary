@@ -10,10 +10,7 @@ const getAuthor = () => {
 
     try {
       const author = await Owner.find()
-                                .select('-_id')
-                                .select('-owner')
-                                .select('-updatedAt')
-                                .select('-__v')
+                                .select('-_id -owner -updatedAt')
                                 .sort({ "createdAt": 1 })
       res(author)
     } catch(err) {
@@ -116,7 +113,6 @@ const getPost = titleHash => {
       await dbConnect()
 
       const result = await Post.findOne({ titleHash })
-                                .select('-__v')
                                 .select('-owner')
       res(result)
     } catch(err) {
@@ -132,8 +128,21 @@ const getStatic = section => {
     try {
       const result = await Static.findOne({ section })
                                   .select('-_id')
-                                  .select('-__v')
       res(result)
+    } catch(err) {
+      rej(err)
+    }
+  })
+}
+
+const getStatics = () => {
+  return new Promise(async (res, rej) => {
+    await dbConnect()
+
+    try {
+      const results = await Static.find({})
+                                  .select('section -_id')
+      res(results)
     } catch(err) {
       rej(err)
     }
@@ -185,7 +194,6 @@ const getPosts = () => {
       await dbConnect()
 
       const results = await Post.find({})
-                                .select('-__v')
                                 .select('-owner')
                                 .sort({ "updatedAt": -1 })
       res(results)
@@ -204,6 +212,7 @@ const postutils = {
                    createStatic,
                    getPost,
                    getStatic,
+                   getStatics,
                    updatePost,
                    updateStatic,
                    deletePost,

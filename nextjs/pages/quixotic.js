@@ -15,8 +15,7 @@ export default function Home() {
   const [ password, setPassword ] = useState('')
 
   const handleInput = e => {
-    const id = e.target.id
-    const value = e.target.value
+    const { id, value } = e.target
 
     if(id === 'email') setEmail(value)
     if(id === 'password') setPassword(value)

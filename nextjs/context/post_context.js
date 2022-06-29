@@ -12,16 +12,18 @@ const PostProvider = props => {
   const router = useRouter()
 
   const [ posts, setPosts ] = useState([])
+  const [ statics, setStatics ] = useState([])
   const [ post, setPost ] = useState({})
   const [ postReady, setPostReady ] = useState(false)
  
   const postLink = process.env.NEXT_PUBLIC_POSTLINK
   const postsLink = process.env.NEXT_PUBLIC_POSTSLINK
+  const staticsLink = process.env.NEXT_PUBLIC_STATICSLINK
 
   const getPosts = () => {
     const params = {
       method: 'get',
-      url: postsLink,
+      url: postsLink
     }
 
     const success = (res) => {
@@ -32,6 +34,25 @@ const PostProvider = props => {
 
     const fail = (err) => {
       console.log('get posts error', postsLink, err)
+    }
+
+    callAxios(params, success, fail)
+  }
+
+  const getStatics = () => {
+    const params = {
+      method: 'get',
+      url: staticsLink
+    }
+
+    const success = (res) => {
+      if(res.status === 200) {
+        setStatics(res.data)
+      }
+    }
+
+    const fail = (err) => {
+      console.log('get statics error', staticsLink, err)
     }
 
     callAxios(params, success, fail)
@@ -69,10 +90,12 @@ const PostProvider = props => {
 
   const value = {
     posts,
+    statics,
     post,
     postReady,
     setPostReady,
     getPosts,
+    getStatics,
     callPost
   }
 

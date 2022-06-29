@@ -10,7 +10,7 @@ import Submit from '../../components/submit'
 const Editor = dynamic(() => import("../../components/editor"), { ssr: false })
 
 export default function PostAdd() {
-  const { logged, getAuthorization } = useContext(AuthContext)
+  const { logged } = useContext(AuthContext)
   const { callPost } = useContext(PostContext)
   const [ title, setTitle ] = useState('')
   const [ summary, setSummary ] = useState('')

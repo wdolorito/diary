@@ -1,9 +1,11 @@
 import Link from 'next/link'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import AuthContext from '../context/auth_context'
+import PostContext from '../context/post_context'
 
 export default function Navlinks() {
   const { logged } = useContext(AuthContext)
+  const { statics } = useContext(PostContext)
 
   if(logged) {
     return (
@@ -17,9 +19,6 @@ export default function Navlinks() {
         <li className='nav-item'>
           <Link href='/section/add' passHref><a className='nav-link'>Add Section</a></Link>
         </li>
-        <li className='nav-item'>
-          <Link href='/about' passHref><a className='nav-link'>About</a></Link>
-        </li>
       </ul>
     )
   
@@ -30,9 +29,15 @@ export default function Navlinks() {
       <li className='nav-item'>
         <Link href='/' passHref><a className='nav-link'>Home</a></Link>
       </li>
-      <li className='nav-item'>
-        <Link href='/about' passHref><a className='nav-link'>About</a></Link>
-      </li>
-    </ul>
+    { 
+      statics.map((item, index) => {
+        return (
+          <li className='nav-item' key={ index }>
+            <Link href={ '/' + item.section } passHref><a className='nav-link'>{ item.section }</a></Link>
+          </li>
+        )
+      })
+    }
+  </ul>
   )
 }

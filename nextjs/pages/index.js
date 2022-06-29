@@ -6,11 +6,14 @@ import Empty from '../components/empty'
 import Posts from '../components/posts'
 
 export default function Home() {
-  const { getPosts, posts } = useContext(PostContext)
+  const { getPosts, getStatics, posts, statics } = useContext(PostContext)
 
   useEffect(() => {
-    getPosts()
-  },[])
+    if(Object.keys(statics).length === 0) {
+      getPosts()
+      getStatics()
+    }
+  },[statics])
 
   if(posts.length === 0) {
     return (

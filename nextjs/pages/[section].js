@@ -1,5 +1,9 @@
 import Head from 'next/head'
-import { useEffect } from 'react'
+import { useContext } from 'react'
+
+import AuthContext from '../context/auth_context'
+import Delete from '../components/delete'
+import Edit from '../components/edit'
 
 export async function getServerSideProps(context) {
   const { section } = context.query
@@ -23,7 +27,6 @@ export async function getServerSideProps(context) {
                       })
                       .join(' ')
 
-  
   return {
     props: { title, body }
   }
@@ -31,18 +34,37 @@ export async function getServerSideProps(context) {
 
 export default function Section(props) {
   const { title, body } = props
+  const { logged } = useContext(AuthContext)
 
-  useEffect(() => {
-    console.log('in catchall')
-  },[])
+  const btnAction = (e) => {
+    e.preventDefault()
 
+    const { name } = e.target
+    console.log(name)
+  }
+                      
   return (
     <>
       <Head>
         <title>{ title }</title>
       </Head>
 
-      <div dangerouslySetInnerHTML={{__html: body }} />
+      <div className='row mt-5'>
+        <div className='col'>
+          <div dangerouslySetInnerHTML={{ __html: body }} />
+        </div>
+      </div>
+
+      { logged &&
+        <div className='row'>
+          <div className='col text-center'>
+            <Delete action={ btnAction } name='section' />
+          </div>
+          <div className='col text-center'>
+            <Edit action={ btnAction } name='section'/>
+          </div>
+        </div>
+      }
     </>
   )
 }
