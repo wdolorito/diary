@@ -86,11 +86,7 @@ const PostProvider = props => {
   const callPost = (type, payload, id) => {
     console.log('callPost type: ' + type)
     let link = postLink
-    if(id === 'static') {
-      link += '/?section=' + payload.section     
-    } else {
-      link += '/' + id
-    }
+    if(id) link += '/' + id
     let headers = {}
     if(type !== 'get') headers = getAuthorization()
     const config = {
