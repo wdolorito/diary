@@ -4,6 +4,7 @@ import postutils from '../../../be/postutils'
 export default async function handler(req, res) {
   const { method } = req
   const { hid } = req.query
+  console.log(method)
 
   if(method === 'GET') {
     let titleHash = hid, section
@@ -69,6 +70,7 @@ export default async function handler(req, res) {
       id = hid[0]
       section = hid[1]
     }
+    console.log('id', id, 'section', section)
 
     let { title, body, summary } = req.body
     const set = {}
@@ -99,7 +101,7 @@ export default async function handler(req, res) {
     
     if(id === 'static') {
       try {
-        const result = await Static.findOneAndUpdate(section, set)
+        const result = await postutils.updateStatic(section, set)
         if(result) return res.status(200).json({ response: section + ' updated.'})
       } catch(err) {
         return res.status(500).json({ response: err })

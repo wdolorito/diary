@@ -8,11 +8,13 @@ const PostContext = createContext()
 
 const PostProvider = props => {
   const { callAxios } = useContext(NetworkContext)
-  const { getAuthorization } = useContext(AuthContext)
+  const { doRefresh, getAuthorization } = useContext(AuthContext)
   const router = useRouter()
 
   const [ posts, setPosts ] = useState([])
   const [ statics, setStatics ] = useState([])
+  const [ page, setPage ] = useState({})
+  const [ pageReady, setPageReady ] = useState(false)
   const [ post, setPost ] = useState({})
   const [ postReady, setPostReady ] = useState(false)
  
@@ -34,6 +36,7 @@ const PostProvider = props => {
 
     const fail = (err) => {
       console.log('get posts error', postsLink, err)
+      doRefresh()
     }
 
     callAxios(params, success, fail)
@@ -53,14 +56,41 @@ const PostProvider = props => {
 
     const fail = (err) => {
       console.log('get statics error', staticsLink, err)
+      doRefresh()
+    }
+
+    callAxios(params, success, fail)
+  }
+
+  const getStatic = section => {
+    const params = {
+      method: 'get',
+      url: postLink + '/static/' + section
+    }
+
+    const success = (res) => {
+      if(res.status === 200) {
+        setPage(res.data)
+        setPageReady(true)
+      }
+    }
+
+    const fail = (err) => {
+      console.log('get static error', err)
+      doRefresh()
     }
 
     callAxios(params, success, fail)
   }
 
   const callPost = (type, payload, id) => {
+    console.log('callPost type: ' + type)
     let link = postLink
-    if(id) link += '/' + id
+    if(id === 'static') {
+      link += '/?section=' + payload.section     
+    } else {
+      link += '/' + id
+    }
     let headers = {}
     if(type !== 'get') headers = getAuthorization()
     const config = {
@@ -71,18 +101,23 @@ const PostProvider = props => {
     }
 
     const success = (res) => {
-      if(res.status === 200) {
+      const { status } = res
+      if(status === 200) {
         if(type === 'get') {
           setPost(res.data)
           setPostReady(true)
         }
-        if(type === 'put' || type === 'post' || type === 'delete') getPosts()
+        if(type === 'put' || type === 'delete') getPosts()
         if(type === 'delete') router.push('/')
+      }
+      if(status === 201) {
+        getPosts()
+        getStatics()
       }
     }
 
     const fail = (err) => {
-      console.log(err)
+      doRefresh()
     }
 
     callAxios(config, success, fail)
@@ -91,11 +126,15 @@ const PostProvider = props => {
   const value = {
     posts,
     statics,
+    page,
+    pageReady,
     post,
     postReady,
+    setPageReady,
     setPostReady,
     getPosts,
     getStatics,
+    getStatic,
     callPost
   }
 

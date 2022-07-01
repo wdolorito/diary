@@ -3,15 +3,12 @@ import { CKEditor } from "@ckeditor/ckeditor5-react"
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
 
 export default function Editor(props) {
-  const initData = '' || props.data
-  const { getData } = props
+  const { data, setData } = props
   const [ loaded, setLoaded ] = useState(false)
-  const [ data, setData ] = useState(initData)
 
   const updateEditor = (event, editor) => {
     const data = editor.getData()
     setData(data)
-    getData(data)
   }
 
   useEffect(() => {

@@ -23,10 +23,6 @@ export default function PostEdit() {
     if(id === 'title') setTitle(value)
   }
 
-  const handleEditor = data => {
-    setBody(data)
-  }
-
   const submitHandler = e => {
     e.preventDefault()
     const payload = {}
@@ -68,7 +64,7 @@ export default function PostEdit() {
                 <input type='text' className='form-control' id='summary' value={ summary } onChange={ handleInput } />
               </div>
               <div className='form-group'>
-                <Editor data={ body } getData={ handleEditor }/>
+                <Editor data={ body } setData={ setBody }/>
               </div>
               <Submit />
             </form>

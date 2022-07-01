@@ -22,10 +22,6 @@ export default function SectionAdd() {
     if(id === 'section') setSection(value)
   }
 
-  const handleEditor = data => {
-    setBody(data)
-  }
-
   const submitHandler = e => {
     e.preventDefault()
     const payload = {}
@@ -60,7 +56,7 @@ export default function SectionAdd() {
               </div>
               <div className='form-group'>
                 <small id='editor-help' className='form-text text-muted'>Be sure to add a heading.</small>
-                <Editor data={ body } getData={ handleEditor }/>
+                <Editor data={ body } setData={ setBody }/>
               </div>
               <Submit />
             </form>

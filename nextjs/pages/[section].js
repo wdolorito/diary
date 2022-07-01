@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { useContext } from 'react'
 
 import AuthContext from '../context/auth_context'
@@ -35,12 +36,15 @@ export async function getServerSideProps(context) {
 export default function Section(props) {
   const { title, body } = props
   const { logged } = useContext(AuthContext)
+  const router = useRouter()
 
   const btnAction = (e) => {
     e.preventDefault()
 
     const { name } = e.target
-    console.log(name)
+    if(name === 'delete') router.push('/section/edit')
+    if(name === 'edit') router.push('/section/edit')
+
   }
                       
   return (

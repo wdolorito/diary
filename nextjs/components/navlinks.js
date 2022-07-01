@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import AuthContext from '../context/auth_context'
 import PostContext from '../context/post_context'
 
@@ -19,6 +19,20 @@ export default function Navlinks() {
         <li className='nav-item'>
           <Link href='/section/add' passHref><a className='nav-link'>Add Section</a></Link>
         </li>
+        { statics.map((item, index) => {
+            return (
+              <li className='nav-item' key={ index }>
+                <Link href={ '/' + item.section } passHref>
+                  <a className='nav-link'>{ item.section.toLowerCase()
+                                                        .split(' ')
+                                                        .map(word => {
+                                                          return word[0].toUpperCase() + word.substr(1)
+                                                        })
+                                                        .join(' ') }</a>
+                </Link>
+              </li>
+            )
+          })}
       </ul>
     )
   
@@ -29,15 +43,20 @@ export default function Navlinks() {
       <li className='nav-item'>
         <Link href='/' passHref><a className='nav-link'>Home</a></Link>
       </li>
-    { 
-      statics.map((item, index) => {
+    {statics.map((item, index) => {
         return (
           <li className='nav-item' key={ index }>
-            <Link href={ '/' + item.section } passHref><a className='nav-link'>{ item.section }</a></Link>
+            <Link href={ '/' + item.section } passHref>
+              <a className='nav-link'>{ item.section.toLowerCase()
+                                                    .split(' ')
+                                                    .map(word => {
+                                                      return word[0].toUpperCase() + word.substr(1)
+                                                    })
+                                                    .join(' ') }</a>
+            </Link>
           </li>
         )
-      })
-    }
+      })}
   </ul>
   )
 }
