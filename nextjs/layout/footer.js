@@ -1,9 +1,8 @@
 export default function Footer() {
   return (
-    <>
-      <footer>
-        Some stuff here.
-      </footer>
-    </>
+    <div className='card text-white-50 rounded-0' style={{ backgroundColor: '#446290'}}>
+      <div className='card-body'>
+      </div>
+    </div>
   )
 }

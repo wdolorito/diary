@@ -84,7 +84,6 @@ const PostProvider = props => {
   }
 
   const callPost = (type, payload, id) => {
-    console.log('callPost type: ' + type)
     let link = postLink
     if(id) link += '/' + id
     let headers = {}

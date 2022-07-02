@@ -53,22 +53,24 @@ export default function Section(props) {
         <title>{ title }</title>
       </Head>
 
-      <div className='row mt-5'>
-        <div className='col'>
-          <div dangerouslySetInnerHTML={{ __html: body }} />
+      <div className='container'>
+        <div className='row mt-5'>
+          <div className='col'>
+            <div dangerouslySetInnerHTML={{ __html: body }} />
+          </div>
         </div>
-      </div>
 
-      { logged &&
-        <div className='row'>
-          <div className='col text-center'>
-            <Delete action={ btnAction } name='section' />
+        { logged &&
+          <div className='row mb-3'>
+            <div className='col text-center'>
+              <Delete action={ btnAction } name='section' />
+            </div>
+            <div className='col text-center'>
+              <Edit action={ btnAction } name='section'/>
+            </div>
           </div>
-          <div className='col text-center'>
-            <Edit action={ btnAction } name='section'/>
-          </div>
-        </div>
-      }
+        }
+      </div>
     </>
   )
 }

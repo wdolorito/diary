@@ -5,7 +5,7 @@ export default function Posts(props) {
   const posts = data.slice(1)
 
   return (
-    <div className='container'>
+    <div className='container mt-3 mb-3'>
       {
         posts.map((post, index) => (
           <Post

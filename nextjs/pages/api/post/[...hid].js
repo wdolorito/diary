@@ -4,7 +4,6 @@ import postutils from '../../../be/postutils'
 export default async function handler(req, res) {
   const { method } = req
   const { hid } = req.query
-  console.log(method)
 
   if(method === 'GET') {
     let titleHash = hid, section
@@ -70,7 +69,6 @@ export default async function handler(req, res) {
       id = hid[0]
       section = hid[1]
     }
-    console.log('id', id, 'section', section)
 
     let { title, body, summary } = req.body
     const set = {}
