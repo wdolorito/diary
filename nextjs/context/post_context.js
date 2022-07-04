@@ -83,6 +83,22 @@ const PostProvider = props => {
     callAxios(params, success, fail)
   }
 
+  const createPost = payload => {
+    callPost('post', payload)
+  }
+
+  const getPost = titleHash => {
+    callPost('get', {}, titleHash)
+  }
+
+  const updatePost = (payload, id) => {
+    callPost('put', payload, id)
+  }
+
+  const deletePost = id => {
+    /* fix me */
+  }
+
   const callPost = (type, payload, id) => {
     let link = postLink
     if(id) link += '/' + id
@@ -130,7 +146,10 @@ const PostProvider = props => {
     getPosts,
     getStatics,
     getStatic,
-    callPost
+    createPost,
+    getPost,
+    updatePost,
+    deletePost
   }
 
   return (

@@ -22,7 +22,7 @@ export async function getServerSideProps(context) {
 
 export default function Post(props) {
   const { titleHash } = props
-  const { callPost, post, postReady, setPostReady } = useContext(PostContext)
+  const { getPost, post, postReady, setPostReady } = useContext(PostContext)
   const { logged } = useContext(AuthContext)
   const router = useRouter()
 
@@ -36,7 +36,7 @@ export default function Post(props) {
   }
 
   useEffect(() => {
-    callPost('get', {}, titleHash)
+    getPost(titleHash)
     return () => { setPostReady(false)}
   },[])
 

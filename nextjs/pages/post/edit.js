@@ -10,7 +10,7 @@ import Submit from '../../components/submit'
 
 export default function PostEdit() {
   const { logged } = useContext(AuthContext)
-  const { callPost, post } = useContext(PostContext)
+  const { updatePost, post } = useContext(PostContext)
   const [ title, setTitle ] = useState(post[1].title)
   const [ summary, setSummary ] = useState(post[1].summary)
   const [ body, setBody ] = useState(post[1].body)
@@ -34,7 +34,7 @@ export default function PostEdit() {
     } else {
       payload.summary = body.replace(/<[^>]+>/g, '')
     }
-    callPost('put', payload, post[1]._id)
+    updatePost(payload, post[1]._id)
     router.push('/')
   }
 

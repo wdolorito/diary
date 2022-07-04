@@ -11,7 +11,7 @@ const Editor = dynamic(() => import("../../components/editor"), { ssr: false })
 
 export default function PostAdd() {
   const { logged } = useContext(AuthContext)
-  const { callPost } = useContext(PostContext)
+  const { createPost } = useContext(PostContext)
   const [ title, setTitle ] = useState('')
   const [ summary, setSummary ] = useState('')
   const [ body, setBody ] = useState('<p>Add post</p>')
@@ -35,7 +35,7 @@ export default function PostAdd() {
     } else {
       payload.summary = body.replace(/<[^>]+>/g, '')
     }
-    callPost('post', payload)
+    createPost(payload)
     router.push('/')
   }
 
