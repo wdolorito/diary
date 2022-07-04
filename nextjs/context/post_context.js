@@ -31,6 +31,8 @@ const PostProvider = props => {
     const success = (res) => {
       if(res.status === 200) {
         setPosts(res.data)
+      } else {
+        setPosts([])
       }
     }
 
@@ -96,7 +98,7 @@ const PostProvider = props => {
   }
 
   const deletePost = id => {
-    /* fix me */
+    callPost('delete', {}, id)
   }
 
   const createSection = payload => {
@@ -129,9 +131,10 @@ const PostProvider = props => {
         if(type === 'get') {
           setPost(res.data)
           setPostReady(true)
+        } else {
+          getPosts()
+          router.push('/')
         }
-        if(type === 'put' || type === 'delete') getPosts()
-        if(type === 'delete') router.push('/')
       }
       if(status === 201) {
         getPosts()

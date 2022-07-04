@@ -22,7 +22,7 @@ export async function getServerSideProps(context) {
 
 export default function Post(props) {
   const { titleHash } = props
-  const { getPost, post, postReady, setPostReady } = useContext(PostContext)
+  const { deletePost, getPost, post, postReady, setPostReady } = useContext(PostContext)
   const { logged } = useContext(AuthContext)
   const router = useRouter()
 
@@ -31,7 +31,7 @@ export default function Post(props) {
 
     const { name } = e.target
 
-    if(name === 'delete') router.push('/post/edit')
+    if(name === 'delete') deletePost(post[1]._id)
     if(name === 'edit') router.push('/post/edit')
   }
 

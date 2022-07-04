@@ -10,10 +10,13 @@ import Submit from '../../components/submit'
 
 export default function PostEdit() {
   const { logged } = useContext(AuthContext)
-  const { updatePost, post } = useContext(PostContext)
-  const [ title, setTitle ] = useState(post[1].title)
-  const [ summary, setSummary ] = useState(post[1].summary)
-  const [ body, setBody ] = useState(post[1].body)
+  const { updatePost, post, postReady } = useContext(PostContext)
+  // const [ title, setTitle ] = useState(post[1].title)
+  // const [ summary, setSummary ] = useState(post[1].summary)
+  // const [ body, setBody ] = useState(post[1].body)
+  const [ title, setTitle ] = useState('')
+  const [ summary, setSummary ] = useState('')
+  const [ body, setBody ] = useState('')
   const router = useRouter()
 
   const handleInput = e => {
@@ -35,12 +38,17 @@ export default function PostEdit() {
       payload.summary = body.replace(/<[^>]+>/g, '')
     }
     updatePost(payload, post[1]._id)
-    router.push('/')
   }
 
   useEffect(() => {
     if(!logged) router.push('/')
-  },[logged])
+    if(postReady) {
+      const { title, summary, body } = post[1]
+      setTitle(title)
+      setSummary(summary)
+      setBody(body)
+    }
+  },[logged, postReady])
 
   return (
     <>
