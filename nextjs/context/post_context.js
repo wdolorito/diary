@@ -99,6 +99,18 @@ const PostProvider = props => {
     /* fix me */
   }
 
+  const createSection = payload => {
+    callPost('post', payload)
+  }
+
+  const updateSection = (payload, route) => {
+    callPost('put', payload, route)
+  }
+
+  const deleteSection = () => {
+    /* fix me */
+  }
+
   const callPost = (type, payload, id) => {
     let link = postLink
     if(id) link += '/' + id
@@ -149,7 +161,10 @@ const PostProvider = props => {
     createPost,
     getPost,
     updatePost,
-    deletePost
+    deletePost,
+    createSection,
+    updateSection,
+    deleteSection
   }
 
   return (

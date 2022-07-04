@@ -11,7 +11,7 @@ const Editor = dynamic(() => import('../../components/editor'), { ssr: false })
 
 export default function SectionAdd() {
   const { logged } = useContext(AuthContext)
-  const { callPost } = useContext(PostContext)
+  const { createSection } = useContext(PostContext)
   const [ section, setSection ] = useState('')
   const [ body, setBody ] = useState('<p>Add section</p>')
   const router = useRouter()
@@ -29,7 +29,7 @@ export default function SectionAdd() {
     payload.section = section
     payload.body = body
 
-    callPost('post', payload)
+    createSection(payload)
     router.push('/')
   }
 

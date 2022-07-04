@@ -31,7 +31,7 @@ export async function getServerSideProps(context) {
 
 export default function SectionEdit(props) {
   const { logged } = useContext(AuthContext)
-  const { callPost, getStatic, page, pageReady, setPageReady } = useContext(PostContext)
+  const { updateSection, getStatic, page, pageReady, setPageReady } = useContext(PostContext)
   const { section } = props
   const [ body, setBody ] = useState('')
   const router = useRouter()
@@ -43,7 +43,7 @@ export default function SectionEdit(props) {
     payload.section = section
     payload.body = body
 
-    callPost('put', payload, 'static/' + section)
+    updateSection(payload, 'static/' + section)
     router.push('/' + section)
   }
 
