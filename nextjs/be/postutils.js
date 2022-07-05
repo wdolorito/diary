@@ -2,7 +2,6 @@ const crypto = require('crypto')
 import dbConnect from './dbConnect'
 import Owner from './models/Owner'
 import Post from './models/Post'
-import Static from './models/Static'
 
 const getAuthor = () => {
   return new Promise(async (res, rej) => {
@@ -89,24 +88,6 @@ const createPost = (title, summary, body) => {
   })
 }
 
-const createStatic = (section, body) => {
-  return new Promise(async (res, rej) => {
-    await dbConnect()
-
-    const page = new Static({
-      section,
-      body
-    })
-  
-    try {
-      await page.save()
-      res(section + ' saved')
-    } catch(err) {
-      rej('unable to post ' + err)
-    }
-  })
-}
-
 const getPost = titleHash => {
   return new Promise(async (res, rej) => {
     try {
@@ -121,34 +102,6 @@ const getPost = titleHash => {
   })
 }
 
-const getStatic = section => {
-  return new Promise(async (res, rej) => {
-    await dbConnect()
-
-    try {
-      const result = await Static.findOne({ section })
-                                  .select('-_id')
-      res(result)
-    } catch(err) {
-      rej(err)
-    }
-  })
-}
-
-const getStatics = () => {
-  return new Promise(async (res, rej) => {
-    await dbConnect()
-
-    try {
-      const results = await Static.find({})
-                                  .select('section -_id')
-      res(results)
-    } catch(err) {
-      rej(err)
-    }
-  })
-}
-
 const updatePost = (_id, set) => {
   return new Promise(async (res, rej) => {
     await dbConnect()
@@ -158,19 +111,6 @@ const updatePost = (_id, set) => {
       res(true)
     } catch(err) {
       rej('Unable to update post ' + _id + ' ' + err)
-    }
-  })
-}
-
-const updateStatic = (section, set) => {
-  return new Promise(async (res, rej) => {
-    await dbConnect()
-
-    try {
-      await Static.findOneAndUpdate({ section }, { $set: set })
-      res(true)
-    } catch(err) {
-      rej('Unable to update ' + section + ' section ' + err)
     }
   })
 }
@@ -209,12 +149,8 @@ const postutils = {
                    getFriendlyURL,
                    getTitleHash,
                    createPost,
-                   createStatic,
                    getPost,
-                   getStatic,
-                   getStatics,
                    updatePost,
-                   updateStatic,
                    deletePost,
                    getPosts
                   }

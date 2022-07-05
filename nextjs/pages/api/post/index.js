@@ -1,5 +1,6 @@
 import jwtutils from '../../../be/jwtutils'
 import postutils from '../../../be/postutils'
+import staticutils from '../../../be/staticutils'
 
 export default async function handler(req, res) {
   const { method } = req
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
 
     if(section) {
       try {
-        const page = postutils.createStatic(section, body)
+        const page = staticutils.createStatic(section, body)
         return res.status(201).send(page)
       } catch(err) {
         return res.status(400).json({ response: err })

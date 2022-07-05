@@ -1,11 +1,11 @@
-import postutils from '../../be/postutils'
+import staticutils from '../../be/staticutils'
 
 export default async function handler(req, res) {
   const { method } = req
   if(method === 'GET') {
     let statics
     try {
-      statics = await postutils.getStatics()
+      statics = await staticutils.getStatics()
     } catch(err) {
       return res.status(500).json({ response: err })
     }

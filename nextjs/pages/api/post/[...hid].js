@@ -1,5 +1,6 @@
 import jwtutils from '../../../be/jwtutils'
 import postutils from '../../../be/postutils'
+import staticutils from '../../../be/staticutils'
 
 export default async function handler(req, res) {
   const { method } = req
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
     
     if(titleHash === 'static') {
       try {
-        const page = await postutils.getStatic(section)
+        const page = await staticutils.getStatic(section)
         if(page) {
           return res.status(200).send(page)
         } else {
@@ -99,7 +100,7 @@ export default async function handler(req, res) {
     
     if(id === 'static') {
       try {
-        const result = await postutils.updateStatic(section, set)
+        const result = await staticutils.updateStatic(section, set)
         if(result) return res.status(200).json({ response: section + ' updated.'})
       } catch(err) {
         return res.status(500).json({ response: err })
