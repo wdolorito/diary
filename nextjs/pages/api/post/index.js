@@ -2,21 +2,27 @@ import jwtutils from '../../../be/jwtutils'
 import postutils from '../../../be/postutils'
 import staticutils from '../../../be/staticutils'
 
+const checkAuth = async (req, res, json = false) => {
+  const resToken = req.headers.authorization
+  try {
+    await jwtutils.isExpired(resToken)
+  } catch(err) {
+    return res.status(401).json({ response: 'Tricky trickster.  Send valid authorization. ' + err})
+  }
+
+  if(json) return
+
+  const reqType = req.headers['content-type']
+  if(reqType !== 'application/json') {
+    return res.status(400).json({ response: 'Set us up the JSON.' })
+  }
+}
+
 export default async function handler(req, res) {
   const { method } = req
 
   if(method === 'POST') {
-    const resToken = req.headers.authorization
-    try {
-      await jwtutils.isExpired(resToken)
-    } catch(err) {
-      return res.status(500).json({ response: 'Tricky trickster.  Send valid authorization. ' + err})
-    }
-
-    const reqType = req.headers['content-type']
-    if(reqType !== 'application/json') {
-      return res.status(400).json({ response: 'Set us up the JSON.' })
-    }
+    await checkAuth(req, res)
 
     const { section, body } = req.body
     let { title, summary } = req.body
