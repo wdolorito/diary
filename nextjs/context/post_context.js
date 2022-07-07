@@ -10,15 +10,11 @@ const PostProvider = props => {
   const { doRefresh, getAuthorization } = useContext(AuthContext)
 
   const [ posts, setPosts ] = useState([])
-  const [ statics, setStatics ] = useState([])
-  const [ page, setPage ] = useState({})
-  const [ pageReady, setPageReady ] = useState(false)
   const [ post, setPost ] = useState({})
   const [ postReady, setPostReady ] = useState(false)
  
   const postLink = process.env.NEXT_PUBLIC_POSTLINK
   const postsLink = process.env.NEXT_PUBLIC_POSTSLINK
-  const staticsLink = process.env.NEXT_PUBLIC_STATICSLINK
 
   const getPosts = () => {
     const params = {
@@ -26,7 +22,7 @@ const PostProvider = props => {
       url: postsLink
     }
 
-    const success = (res) => {
+    const success = res => {
       if(res.status === 200) {
         setPosts(res.data)
       } else {
@@ -34,49 +30,8 @@ const PostProvider = props => {
       }
     }
 
-    const fail = (err) => {
+    const fail = err => {
       console.log('get posts error', postsLink, err)
-      doRefresh()
-    }
-
-    callAxios(params, success, fail)
-  }
-
-  const getStatics = () => {
-    const params = {
-      method: 'get',
-      url: staticsLink
-    }
-
-    const success = (res) => {
-      if(res.status === 200) {
-        setStatics(res.data)
-      }
-    }
-
-    const fail = (err) => {
-      console.log('get statics error', staticsLink, err)
-      doRefresh()
-    }
-
-    callAxios(params, success, fail)
-  }
-
-  const getStatic = section => {
-    const params = {
-      method: 'get',
-      url: postLink + '/static/' + section
-    }
-
-    const success = (res) => {
-      if(res.status === 200) {
-        setPage(res.data)
-        setPageReady(true)
-      }
-    }
-
-    const fail = (err) => {
-      console.log('get static error', err)
       doRefresh()
     }
 
@@ -99,18 +54,6 @@ const PostProvider = props => {
     callPost('delete', {}, id)
   }
 
-  const createSection = payload => {
-    callPost('post', payload)
-  }
-
-  const updateSection = (payload, route) => {
-    callPost('put', payload, route)
-  }
-
-  const deleteSection = () => {
-    /* fix me */
-  }
-
   const callPost = (type, payload, id) => {
     let link = postLink
     if(id) link += '/' + id
@@ -123,7 +66,7 @@ const PostProvider = props => {
       headers: headers
     }
 
-    const success = (res) => {
+    const success = res => {
       const { status } = res
       if(status === 200) {
         if(type === 'get') {
@@ -135,11 +78,11 @@ const PostProvider = props => {
       }
       if(status === 201) {
         getPosts()
-        getStatics()
       }
     }
 
-    const fail = (err) => {
+    const fail = err => {
+      console.log(type, 'post error', postLink, err)
       doRefresh()
     }
 
@@ -148,23 +91,14 @@ const PostProvider = props => {
 
   const value = {
     posts,
-    statics,
-    page,
-    pageReady,
     post,
     postReady,
-    setPageReady,
     setPostReady,
     getPosts,
-    getStatics,
-    getStatic,
     createPost,
     getPost,
     updatePost,
-    deletePost,
-    createSection,
-    updateSection,
-    deleteSection
+    deletePost
   }
 
   return (
