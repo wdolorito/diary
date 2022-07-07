@@ -1,28 +1,12 @@
 import jwtutils from '../../../be/jwtutils'
 import staticutils from '../../../be/staticutils'
 
-const checkAuth = async (req, res, json = false) => {
-  const resToken = req.headers.authorization
-  try {
-    await jwtutils.isExpired(resToken)
-  } catch(err) {
-    return res.status(401).json({ response: 'Tricky trickster.  Send valid authorization. ' + err})
-  }
-
-  if(json) return
-
-  const reqType = req.headers['content-type']
-  if(reqType !== 'application/json') {
-    return res.status(400).json({ response: 'Set us up the JSON.' })
-  }
-}
-
 export default async function handler(req, res) {
   const { method } = req
   const { section } = req.query
 
   if(method === 'POST') {
-    await checkAuth(req, res)
+    await jwtutils.checkAuth(req, res)
 
     const { section, body } = req.body
 
@@ -48,7 +32,7 @@ export default async function handler(req, res) {
 }
 
   if(method === 'PUT') {
-    await checkAuth(req, res)
+    await jwtutils.checkAuth(req, res)
 
     const { body } = req.body
     const set = {}
@@ -63,7 +47,7 @@ export default async function handler(req, res) {
   }
 
   if(method === 'DELETE') {
-    await checkAuth(req, res, true)
+    await jwtutils.checkAuth(req, res, false)
     
     {
       try {

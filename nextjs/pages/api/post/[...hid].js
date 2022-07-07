@@ -2,22 +2,6 @@ import jwtutils from '../../../be/jwtutils'
 import postutils from '../../../be/postutils'
 import staticutils from '../../../be/staticutils'
 
-const checkAuth = async (req, res, json = false) => {
-  const resToken = req.headers.authorization
-  try {
-    await jwtutils.isExpired(resToken)
-  } catch(err) {
-    return res.status(401).json({ response: 'Tricky trickster.  Send valid authorization. ' + err})
-  }
-
-  if(json) return
-
-  const reqType = req.headers['content-type']
-  if(reqType !== 'application/json') {
-    return res.status(400).json({ response: 'Set us up the JSON.' })
-  }
-}
-
 export default async function handler(req, res) {
   const { method } = req
   const { hid } = req.query
@@ -69,7 +53,7 @@ export default async function handler(req, res) {
   }
 
   if(method === 'PUT') {
-    await checkAuth(req, res)
+    await jwtutils.checkAuth(req, res)
 
     let id = hid, section
     if(hid.length > 1) {
@@ -115,7 +99,7 @@ export default async function handler(req, res) {
   }
 
   if(method === 'DELETE') {
-    await checkAuth(req, res, true)
+    await jwtutils.checkAuth(req, res, false)
 
     try {
       const toDelete = await postutils.deletePost(hid)

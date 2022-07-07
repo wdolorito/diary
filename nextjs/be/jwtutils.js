@@ -111,6 +111,22 @@ const genToken = data => {
   return jwt.sign(data, process.env.APP_SECRET, { expiresIn })
 }
 
+const checkAuth = async (req, res, checkJson = true) => {
+  const resToken = req.headers.authorization
+  try {
+    await jwtutils.isExpired(resToken)
+  } catch(err) {
+    return res.status(401).json({ response: 'Tricky trickster.  Send valid authorization. ' + err})
+  }
+
+  if(!checkJson) return
+
+  const reqType = req.headers['content-type']
+  if(reqType !== 'application/json') {
+    return res.status(400).json({ response: 'Set us up the JSON.' })
+  }
+}
+
 const jwtutils = {
                    getUser,
                    isExpired,
@@ -118,7 +134,8 @@ const jwtutils = {
                    tokenIsExpired,
                    removeToken,
                    genToken,
-                   genRefresh
+                   genRefresh,
+                   checkAuth
                  }
 
 export default jwtutils
