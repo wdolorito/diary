@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { createContext, useContext, useState } from 'react'
 
 import NetworkContext from './network_context'
@@ -9,7 +8,6 @@ const PostContext = createContext()
 const PostProvider = props => {
   const { callAxios } = useContext(NetworkContext)
   const { doRefresh, getAuthorization } = useContext(AuthContext)
-  const router = useRouter()
 
   const [ posts, setPosts ] = useState([])
   const [ statics, setStatics ] = useState([])
@@ -133,7 +131,6 @@ const PostProvider = props => {
           setPostReady(true)
         } else {
           getPosts()
-          router.push('/')
         }
       }
       if(status === 201) {
