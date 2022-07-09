@@ -31,7 +31,10 @@ export default function Post(props) {
 
     const { name } = e.target
 
-    if(name === 'delete') deletePost(post[1]._id)
+    if(name === 'delete') {
+      deletePost(post[1]._id)
+      router.push('/')
+    }
     if(name === 'edit') router.push('/post/edit')
   }
 

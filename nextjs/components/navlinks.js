@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { useContext } from 'react'
 import AuthContext from '../context/auth_context'
-import PostContext from '../context/post_context'
+import StaticContext from '../context/static_context'
 
 export default function Navlinks() {
   const { logged } = useContext(AuthContext)
-  const { statics } = useContext(PostContext)
+  const { sections } = useContext(StaticContext)
 
   const nicify = section => {
     return section.toLowerCase()
@@ -29,7 +29,7 @@ export default function Navlinks() {
         </li>
       }
       {
-        statics.map((item, index) => {
+        sections.map((item, index) => {
           const { section } = item
           return (
             <li className='nav-item' key={ index }>

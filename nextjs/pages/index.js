@@ -2,18 +2,20 @@ import Head from 'next/head'
 import { useContext, useEffect } from 'react'
 
 import PostContext from '../context/post_context'
+import StaticContext from '../context/static_context'
 import Empty from '../components/empty'
 import Posts from '../components/posts'
 
 export default function Home() {
-  const { getPosts, getStatics, posts, statics } = useContext(PostContext)
+  const { getPosts, posts } = useContext(PostContext)
+  const { getSections, sections } = useContext(StaticContext)
 
   useEffect(() => {
-    if(Object.keys(statics).length === 0) {
+    if(Object.keys(sections).length === 0) {
       getPosts()
-      getStatics()
+      getSections()
     }
-  },[statics])
+  },[sections])
 
   if(posts.length === 0) {
     return (

@@ -4,14 +4,14 @@ import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 
 import AuthContext from '../../context/auth_context'
-import PostContext from '../../context/post_context'
+import StaticContext from '../../context/static_context'
 import Submit from '../../components/submit'
 
 const Editor = dynamic(() => import('../../components/editor'), { ssr: false })
 
 export default function SectionAdd() {
   const { logged } = useContext(AuthContext)
-  const { createSection } = useContext(PostContext)
+  const { createSection } = useContext(StaticContext)
   const [ section, setSection ] = useState('')
   const [ body, setBody ] = useState('<p>Add section</p>')
   const router = useRouter()

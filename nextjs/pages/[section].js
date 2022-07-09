@@ -8,7 +8,7 @@ import Edit from '../components/edit'
 
 export async function getServerSideProps(context) {
   const { section } = context.query
-  const res = await fetch(process.env.NEXT_PUBLIC_POSTLINK + '/static/' + section)
+  const res = await fetch(process.env.NEXT_PUBLIC_STATICLINK + '/' + section)
   const response = await res
   if(response.status !== 200) {
     return {
@@ -44,7 +44,6 @@ export default function Section(props) {
     const { name } = e.target
     if(name === 'delete') router.push('/section/edit')
     if(name === 'edit') router.push('/section/edit')
-
   }
                       
   return (

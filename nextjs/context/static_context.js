@@ -49,7 +49,7 @@ const StaticProvider = props => {
     const success = res => {
       const { status } = res
       if(status === 201) {
-        getStatics()
+        getSections()
       }
     }
 
@@ -58,7 +58,7 @@ const StaticProvider = props => {
       doRefresh()
     }
 
-    callAxios(config, success, fail)
+    callAxios(params, success, fail)
   }
 
   const getSection = section => {
@@ -105,7 +105,7 @@ const StaticProvider = props => {
       doRefresh()
     }
 
-    callAxios(config, success, fail)
+    callAxios(params, success, fail)
   }
 
   const deleteSection = section => {
@@ -120,7 +120,7 @@ const StaticProvider = props => {
     const success = res => {
       const { status } = res
       if(status === 200) {
-        getStatics()
+        getSections()
       }
     }
 
@@ -129,7 +129,7 @@ const StaticProvider = props => {
       doRefresh()
     }
 
-    callAxios(config, success, fail)
+    callAxios(params, success, fail)
   }
 
   const value = {

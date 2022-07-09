@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 
 import AuthContext from '../../context/auth_context'
-import PostContext from '../../context/post_context'
+import StaticContext from '../../context/static_context'
 import Empty from '../../components/empty'
 import Submit from '../../components/submit'
 
@@ -31,7 +31,7 @@ export async function getServerSideProps(context) {
 
 export default function SectionEdit(props) {
   const { logged } = useContext(AuthContext)
-  const { updateSection, getStatic, page, pageReady, setPageReady } = useContext(PostContext)
+  const { updateSection, getSection, page, pageReady, setPageReady } = useContext(StaticContext)
   const { section } = props
   const [ body, setBody ] = useState('')
   const router = useRouter()
@@ -49,7 +49,7 @@ export default function SectionEdit(props) {
 
   useEffect(() => {
     if(!logged) router.push('/')
-    getStatic(section)
+    getSection(section)
     return () => { setPageReady(false) }
   }, [logged])
 
