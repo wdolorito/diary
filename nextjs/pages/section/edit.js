@@ -43,7 +43,7 @@ export default function SectionEdit(props) {
     payload.section = section
     payload.body = body
 
-    updateSection(payload, 'static/' + section)
+    updateSection(payload, section)
     router.push('/' + section)
   }
 
