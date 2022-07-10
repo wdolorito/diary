@@ -26,7 +26,7 @@ export default function Post(props) {
   const { logged } = useContext(AuthContext)
   const router = useRouter()
 
-  const btnAction = (e) => {
+  const btnAction = e => {
     e.preventDefault()
 
     const { name } = e.target

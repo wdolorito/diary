@@ -40,7 +40,7 @@ export default function Section(props) {
   const { deleteSection } = useContext(StaticContext)
   const router = useRouter()
 
-  const btnAction = (e) => {
+  const btnAction = e => {
     e.preventDefault()
 
     const { name } = e.target
