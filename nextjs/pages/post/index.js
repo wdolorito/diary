@@ -66,7 +66,7 @@ export default function Post(props) {
   
         <div className='container'>
 
-          <h2 className='text-center'>{ title }</h2>
+          <h2 className='text-center mt-3'>{ title }</h2>
 
           <p className='mt-3'><em>{ summary }</em></p>
 
