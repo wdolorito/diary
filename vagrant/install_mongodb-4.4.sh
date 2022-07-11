@@ -1,8 +1,8 @@
 #!/bin/sh
 # installing mongodb
 sudo apt-get -y install gnupg &&
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add - &&
-echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list &&
+wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add - &&
+echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list &&
 sudo apt-get update &&
 sudo apt-get -y install mongodb-org &&
 sudo systemctl enable mongod.service &&
