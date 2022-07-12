@@ -1,6 +1,6 @@
 # Simple blog project
 
-This project was built on various workstations running debian 11 (bullseye), devuan 4 (chimaera) and KDE neon also under various CPU architectures;  namely amd64, armhf and aarch64.  Hold on, what's that you say?  **_HOW_** armhf?  Especially when mongodb dropped support for 32-bit?  The answer is, the DB isn't running locally.
+This project was built on various workstations running debian 11 (bullseye), devuan 4 (chimaera) and KDE neon (5.25) also under various CPU architectures;  namely amd64, armhf and aarch64.  Hold on, what's that you say?  **_HOW_** armhf?  Especially when mongodb dropped support for 32-bit?  The answer is, the DB isn't running locally.
 
 ## Software used:
 
