@@ -9,19 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^34.1.0",
-    "@ckeditor/ckeditor5-react": "^5.0.2",
-    "axios": "^0.27.2",
+    "@ckeditor/ckeditor5-build-classic": "^39.0.2",
+    "@ckeditor/ckeditor5-react": "^6.1.0",
+    "axios": "^1.5.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.3.6",
-    "next": "12.1.6",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.2",
+    "next": "^13.4.19",
     "node-cache": "^5.1.2",
-    "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "eslint": "8.17.0",
-    "eslint-config-next": "12.1.6"
+    "eslint": "^8.49.0",
+    "eslint-config-next": "^13.4.19"
   }
 }
